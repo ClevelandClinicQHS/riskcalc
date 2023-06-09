@@ -1,2 +1,2 @@
 # riskcalc
-An R package for building risk calculators
+An R package for building risk calculators.
