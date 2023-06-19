@@ -4,6 +4,8 @@
 # riskcalc
 
 <!-- badges: start -->
+
+[![test-coverage](https://github.com/ClevelandClinicQHS/riskcalc/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/ClevelandClinicQHS/riskcalc/actions/workflows/test-coverage.yaml)
 <!-- badges: end -->
 
 The goal of riskcalc is to …
