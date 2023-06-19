@@ -2,9 +2,8 @@ Package: riskcalc
 Title: Build risk calculators for individualized prediction
 Version: 0.0.0.9000
 Authors@R: c(
-    person("Alex", "Zajichek", , "zajicha2@ccf.org", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0001-9591-6692")),
-    person("Cleveland Clinic Quantitative Health Sciences", role = c("cph", "fnd")))
+    person("Cleveland Clinic Quantitative Health Sciences", role = c("cph", "fnd"))
+    person("Alex", "Zajichek", , "zajicha2@ccf.org", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9591-6692")))
 Description: Contains a toolkit for building Shiny-based risk calculators that can be used for individualized risk estimation and decision making. Motivated by the functionality of applications at https://riskcalc.org/.
 License: MIT + file LICENSE
 Encoding: UTF-8
