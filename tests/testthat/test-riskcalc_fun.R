@@ -1,3 +1,3 @@
-test_that("multiplication works", {
-  expect_equal(2 * 2, 4)
+test_that("I get a shiny app", {
+  expect_equal(class(riskcalc_fun()), "shiny.appobj")
 })

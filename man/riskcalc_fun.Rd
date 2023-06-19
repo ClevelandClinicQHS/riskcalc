@@ -2,19 +2,21 @@
 % Please edit documentation in R/riskcalc_fun.R
 \name{riskcalc_fun}
 \alias{riskcalc_fun}
-\title{Random function}
+\title{Title Create a shiny app}
 \usage{
 riskcalc_fun(x)
 }
 \arguments{
-\item{x}{Anything}
+\item{x}{Unused argument}
 }
 \value{
-1
+A shiny app
 }
 \description{
-Random function
+Title Create a shiny app
 }
 \examples{
-riskcalc_fun()
+if(interactive()) {
+  riskcalc_fun()
+}
 }

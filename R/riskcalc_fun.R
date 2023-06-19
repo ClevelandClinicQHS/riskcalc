@@ -1,10 +1,40 @@
-#' Random function
+#' Title Create a shiny app
 #'
-#' @param x Anything
+#' @param x Unused argument
 #'
-#' @return 1
+#' @return A shiny app
 #' @export
 #'
 #' @examples
-#' riskcalc_fun()
-riskcalc_fun <- function(x) {1}
+#' if(interactive()) {
+#'   riskcalc_fun()
+#' }
+riskcalc_fun <-
+  function(x)
+  {
+    # Make a UI
+    ui <-
+      shiny::fluidPage(
+        title = "Example App",
+        shiny::sidebarLayout(
+          shiny::sidebarPanel(
+            shiny::textInput(
+              inputId = "test_input",
+              label = "Add Text"
+            )
+          ),
+          shiny::mainPanel(
+            shiny::textOutput(outputId = "show_text")
+          )
+        )
+      )
+
+    # Make the server
+    server <-
+      function(input, output) {
+        output$show_text <- shiny::renderText({input$test_input})
+      }
+
+    # Run the app
+    shiny::shinyApp(ui, server)
+  }
