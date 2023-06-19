@@ -25,4 +25,5 @@ This is a basic example which shows you how to solve a common problem:
 ``` r
 library(riskcalc)
 ## basic example code
+# riskcalc_fun() launches an app
 ```
