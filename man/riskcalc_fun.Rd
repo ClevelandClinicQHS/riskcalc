@@ -2,18 +2,18 @@
 % Please edit documentation in R/riskcalc_fun.R
 \name{riskcalc_fun}
 \alias{riskcalc_fun}
-\title{Title Create a shiny app}
+\title{Create a shiny app}
 \usage{
 riskcalc_fun(x)
 }
 \arguments{
-\item{x}{Unused argument}
+\item{x}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#questioning}{\figure{lifecycle-questioning.svg}{options: alt='[Questioning]'}}}{\strong{[Questioning]}} Unused argument}
 }
 \value{
 A shiny app
 }
 \description{
-Title Create a shiny app
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \examples{
 if(interactive()) {

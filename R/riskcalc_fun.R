@@ -1,6 +1,9 @@
-#' Title Create a shiny app
+#' Create a shiny app
 #'
-#' @param x Unused argument
+#' @description
+#' `r lifecycle::badge('experimental')`
+#'
+#' @param x `r lifecycle::badge('questioning')` Unused argument
 #'
 #' @return A shiny app
 #' @export
