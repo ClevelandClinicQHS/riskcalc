@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# riskcalc
+# riskcalc <a href="https://clevelandclinicqhs.github.io/riskcalc/"><img src="man/figures/logo.png" align="right" height="139" /></a>
 
 <!-- badges: start -->
 [![test-coverage](https://github.com/ClevelandClinicQHS/riskcalc/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/ClevelandClinicQHS/riskcalc/actions/workflows/test-coverage.yaml)
