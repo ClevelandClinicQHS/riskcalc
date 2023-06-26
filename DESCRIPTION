@@ -13,6 +13,9 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
+    DT,
+    htmltools,
     lifecycle,
-    shiny
+    shiny,
+    shinythemes
 URL: https://clevelandclinicqhs.github.io/riskcalc/

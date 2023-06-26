@@ -14,7 +14,10 @@ status](https://www.r-pkg.org/badges/version/riskcalc)](https://CRAN.R-project.o
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of riskcalc is to …
+The goal of `riskcalc` is to provide a toolkit for building
+[`shiny`](https://www.rstudio.com/products/shiny/)-based risk
+calculators for individualized prediction. Motivated by the look, feel,
+and functionality of the applications at <https://riskcalc.org/>.
 
 ## Installation
 
@@ -24,14 +27,4 @@ You can install the development version of riskcalc from
 ``` r
 # install.packages("devtools")
 devtools::install_github("ClevelandClinicQHS/riskcalc")
-```
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-library(riskcalc)
-## basic example code
-# riskcalc_fun() launches an app
 ```
