@@ -17,5 +17,6 @@ Imports:
     htmltools,
     lifecycle,
     shiny,
-    shinythemes
+    shinythemes,
+    stats
 URL: https://clevelandclinicqhs.github.io/riskcalc/

@@ -1,11 +1,9 @@
 #' Build a risk calculator
 #'
-#' @description Construct a shiny-based risk calculator given information about the inputs and outputs
+#' @description Construct a \code{\link[shiny]{shiny}}-based risk calculator through different input options
 #'
-#' @param inputs Inputs for risk calculator
-#' @param outputs Outputs for risk calculator
-#' @param title Title for risk calculator
-#' @param intercept Intercept term to add to the linear combination
+#' @param object An R object
+#' @param ... Additional arguments
 #'
 #' @return A shiny app
 #' @export
@@ -90,7 +88,7 @@
 #' # Create the risk calculator
 #' if(interactive()) {
 #'   risk_calculator(
-#'     inputs = inputs,
+#'     inputs,
 #'     outputs = outputs,
 #'     title =
 #'       paste(
@@ -100,14 +98,26 @@
 #'     intercept = -2.1264314
 #'   )
 #' }
-#'
 risk_calculator <-
+  function(object, ...) {
+    UseMethod("risk_calculator", object)
+  }
+
+#' @rdname risk_calculator
+#' @param outputs Outputs for risk calculator
+#' @param title Title for risk calculator
+#' @param intercept Intercept term to add to the linear combination
+#' @export
+risk_calculator.list <-
   function(
-      inputs, # List of lists giving inputs
+      object, # List of lists giving inputs
       outputs, # List giving outputs
       title = "", # Displays on top of app
-      intercept = 0 # Intercept to add to the linear predictor
+      intercept = 0, # Intercept to add to the linear predictor
+      ...
     ) {
+
+    inputs <- object
 
     # Iterate to create the shiny input objects, server expressions, etc.
     shiny_inputs <- list()
@@ -225,6 +235,149 @@ risk_calculator <-
     server <-
       function(input, output) {
         output$result <- DT::renderDataTable({eval(parse(text = final_table_expression))})
+      }
+
+    # Run the app
+    shiny::shinyApp(ui, server)
+
+  }
+
+#' @rdname risk_calculator
+#' @param result_label Calculation title in table
+#' @param result_type See the \code{type} argument in \code{\link[stats]{predict.glm}}
+#' @param result_format Function to format the calculated value
+#' @export
+risk_calculator.glm <-
+  function(
+    object, # A glm model object
+    title = "",
+    result_label = "Risk",
+    result_type = "response",
+    result_format = function(x) paste0(round(100 * x, 1), "%"),
+    ...
+  ) {
+
+    # Iterate to create the shiny input objects, server expressions, etc.
+    inputs <- attr(object$terms, "dataClasses")[-1]
+    shiny_inputs <- list()
+    server_expressions <- c()
+    for(i in seq_along(inputs)) {
+
+      # Extract common arguments
+      this_inputId <- names(inputs)[i]
+      this_label <- names(inputs)[i]
+      this_class <- inputs[i][[1]]
+
+      # Check for numeric input
+      if(this_class %in% c("numeric", "integer")) {
+
+        # Create the input for numeric variable
+        this_shiny_input <-
+          shiny::textInput(
+            inputId = this_inputId,
+            label = this_label
+          )
+
+        # Set the server expression
+        this_server_expression <- paste0(this_inputId, "=as.numeric(input$", this_inputId, ")")
+
+        # Otherwise, default to select inputs
+      } else {
+
+        # Create the choice vector
+        if(this_class == "logical") {
+
+          # Set to logical values (as strings)
+          these_choices <- c("FALSE", "TRUE")
+
+          # Set the server expression
+          this_server_expression <- paste0(this_inputId, "=as.logical(input$", this_inputId, ")")
+
+        } else {
+
+          # Extract levels from the model object
+          these_choices <- object$xlevels[[this_inputId]]
+
+          # Set the server expression
+          this_server_expression <- paste0(this_inputId, "=input$", this_inputId)
+
+        }
+
+        # Create the input for categorical variable
+        this_shiny_input <-
+          shiny::selectInput(
+            inputId = this_inputId,
+            label = this_label,
+            choices = these_choices
+          )
+
+      }
+
+      # Add to the lists
+      shiny_inputs[[i]] <- this_shiny_input
+      server_expressions[i] <- this_server_expression
+
+    }
+
+    # Make the input data frame expression
+    server_input_data <- paste0("data.frame(", paste(server_expressions, collapse = ","), ")")
+
+    # Make a UI
+    ui <-
+
+      # Make the page
+      shiny::fluidPage(
+
+        # Set the (default) theme
+        theme = shinythemes::shinytheme("flatly"),
+
+        # Make the title panel
+        shiny::titlePanel(title),
+
+        # Make the default layout
+        shiny::sidebarLayout(
+
+          # Create the side bar with input objects
+          do.call(
+            shiny::sidebarPanel,
+            shiny_inputs
+          ),
+
+          # Create the main display panel
+          shiny::mainPanel(
+
+            # Add button for calculation
+            shiny::actionButton(inputId = "run_calculator", "Run Calculator"),
+            htmltools::br(),
+            htmltools::hr(),
+
+            # Make the table output
+            DT::dataTableOutput(outputId = "result"),
+            htmltools::br(),
+
+            # Information panels
+            shiny::wellPanel(htmltools::h3("Click Below For More Info"), htmltools::p("Citation")),
+            shiny::wellPanel(htmltools::h3("Disclaimer"), htmltools::p("No Advice."))
+          )
+        )
+      )
+
+    # Make the server
+    server <-
+      function(input, output) {
+
+        # Make a reactive input data frame
+        input_data <- shiny::reactive({eval(parse(text = server_input_data))})
+
+        # Show result
+        output$result <-
+          DT::renderDataTable({
+            data.frame(
+              Result = result_label,
+              Probability = result_format(stats::predict(object, newdata = input_data(), type = result_type))
+            )
+          })
+
       }
 
     # Run the app

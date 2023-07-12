@@ -2,24 +2,45 @@
 % Please edit documentation in R/risk_calculator.R
 \name{risk_calculator}
 \alias{risk_calculator}
+\alias{risk_calculator.list}
+\alias{risk_calculator.glm}
 \title{Build a risk calculator}
 \usage{
-risk_calculator(inputs, outputs, title = "", intercept = 0)
+risk_calculator(object, ...)
+
+\method{risk_calculator}{list}(object, outputs, title = "", intercept = 0, ...)
+
+\method{risk_calculator}{glm}(
+  object,
+  title = "",
+  result_label = "Risk",
+  result_type = "response",
+  result_format = function(x) paste0(round(100 * x, 1), "\%"),
+  ...
+)
 }
 \arguments{
-\item{inputs}{Inputs for risk calculator}
+\item{object}{An R object}
+
+\item{...}{Additional arguments}
 
 \item{outputs}{Outputs for risk calculator}
 
 \item{title}{Title for risk calculator}
 
 \item{intercept}{Intercept term to add to the linear combination}
+
+\item{result_label}{Calculation title in table}
+
+\item{result_type}{See the \code{type} argument in \code{\link[stats]{predict.glm}}}
+
+\item{result_format}{Function to format the calculated value}
 }
 \value{
 A shiny app
 }
 \description{
-Construct a shiny-based risk calculator given information about the inputs and outputs
+Construct a \code{\link[shiny]{shiny}}-based risk calculator through different input options
 }
 \examples{
 # Example from https://riskcalc.org/bladderCancer/
@@ -101,7 +122,7 @@ outputs <-
 # Create the risk calculator
 if(interactive()) {
   risk_calculator(
-    inputs = inputs,
+    inputs,
     outputs = outputs,
     title =
       paste(
@@ -111,5 +132,4 @@ if(interactive()) {
     intercept = -2.1264314
   )
 }
-
 }
