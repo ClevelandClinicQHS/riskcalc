@@ -196,48 +196,7 @@ risk_calculator.list <-
     final_table_expression <- paste0("data.frame(Result=c(", paste(result_row_names, collapse = ","), "), Probability=c(", paste(result_row_values, collapse = "+"), "))")
 
     # Make a UI
-    ui <-
-
-      # Make the page
-      shiny::fluidPage(
-
-        # Set the (default) theme
-        theme = shinythemes::shinytheme("flatly"),
-
-        # Define the function
-        shiny::tags$script(js_email()),
-
-        # Make the title panel
-        shiny::titlePanel(title),
-
-        # Make the default layout
-        shiny::sidebarLayout(
-
-          # Create the side bar with input objects
-          do.call(
-            shiny::sidebarPanel,
-            shiny_inputs
-          ),
-
-          # Create the main display panel
-          shiny::mainPanel(
-
-            # Add button for calculation
-            shiny::actionButton(inputId = "run_calculator", "Run Calculator"),
-            htmltools::br(),
-            htmltools::hr(),
-
-            # Make the table output
-            DT::dataTableOutput(outputId = "result"),
-            htmltools::br(),
-
-            # Information panels
-            get_citation(citation),
-            get_disclaimer(),
-            get_links(app_name)
-          )
-        )
-      )
+    ui <- get_UI(title, shiny_inputs, citation, app_name)
 
     # Make the server
     server <-
@@ -333,48 +292,7 @@ risk_calculator.glm <-
     server_input_data <- paste0("data.frame(", paste(server_expressions, collapse = ","), ")")
 
     # Make a UI
-    ui <-
-
-      # Make the page
-      shiny::fluidPage(
-
-        # Set the (default) theme
-        theme = shinythemes::shinytheme("flatly"),
-
-        # Define the function
-        shiny::tags$script(js_email()),
-
-        # Make the title panel
-        shiny::titlePanel(title),
-
-        # Make the default layout
-        shiny::sidebarLayout(
-
-          # Create the side bar with input objects
-          do.call(
-            shiny::sidebarPanel,
-            shiny_inputs
-          ),
-
-          # Create the main display panel
-          shiny::mainPanel(
-
-            # Add button for calculation
-            shiny::actionButton(inputId = "run_calculator", "Run Calculator"),
-            htmltools::br(),
-            htmltools::hr(),
-
-            # Make the table output
-            DT::dataTableOutput(outputId = "result"),
-            htmltools::br(),
-
-            # Information panels
-            get_citation(citation),
-            get_disclaimer(),
-            get_links(app_name)
-          )
-        )
-      )
+    ui <- get_UI(title, shiny_inputs, citation, app_name)
 
     # Make the server
     server <-
@@ -397,6 +315,52 @@ risk_calculator.glm <-
     # Run the app
     shiny::shinyApp(ui, server)
 
+  }
+
+# Internal function to create the user interface
+get_UI <-
+  function(title, shiny_inputs, citation, app_name) {
+
+    # Make the page
+    shiny::fluidPage(
+
+      # Set the (default) theme
+      theme = shinythemes::shinytheme("flatly"),
+
+      # Define the function
+      shiny::tags$script(js_email()),
+
+      # Make the title panel
+      shiny::titlePanel(title),
+
+      # Make the default layout
+      shiny::sidebarLayout(
+
+        # Create the side bar with input objects
+        do.call(
+          shiny::sidebarPanel,
+          shiny_inputs
+        ),
+
+        # Create the main display panel
+        shiny::mainPanel(
+
+          # Add button for calculation
+          shiny::actionButton(inputId = "run_calculator", "Run Calculator"),
+          htmltools::br(),
+          htmltools::hr(),
+
+          # Make the table output
+          DT::dataTableOutput(outputId = "result"),
+          htmltools::br(),
+
+          # Information panels
+          get_citation(citation),
+          get_disclaimer(),
+          get_links(app_name)
+        )
+      )
+    )
   }
 
 # Internal function to create disclaimer
