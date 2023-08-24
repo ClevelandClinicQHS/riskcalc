@@ -107,6 +107,7 @@ risk_calculator <-
 #' @param outputs Outputs for risk calculator
 #' @param title Title for risk calculator
 #' @param citation Citation to display
+#' @param app_name App shorthand (riskcalc.org/app_name)
 #' @param intercept Intercept term to add to the linear combination
 #' @export
 risk_calculator.list <-
@@ -115,6 +116,7 @@ risk_calculator.list <-
       outputs, # List giving outputs
       title = "", # Displays on top of app
       citation = "", # A citation to place in the app
+      app_name = NULL, # A shorthand name for the app (riskcalc.org/app_name)
       intercept = 0, # Intercept to add to the linear predictor
       ...
     ) {
@@ -202,6 +204,9 @@ risk_calculator.list <-
         # Set the (default) theme
         theme = shinythemes::shinytheme("flatly"),
 
+        # Define the function
+        shiny::tags$script(js_email()),
+
         # Make the title panel
         shiny::titlePanel(title),
 
@@ -228,7 +233,8 @@ risk_calculator.list <-
 
             # Information panels
             get_citation(citation),
-            get_disclaimer()
+            get_disclaimer(),
+            get_links(app_name)
           )
         )
       )
@@ -254,6 +260,7 @@ risk_calculator.glm <-
     object, # A glm model object
     title = "",
     citation = "",
+    app_name = NULL,
     result_label = "Risk",
     result_type = "response",
     result_format = function(x) paste0(round(100 * x, 1), "%"),
@@ -334,6 +341,9 @@ risk_calculator.glm <-
         # Set the (default) theme
         theme = shinythemes::shinytheme("flatly"),
 
+        # Define the function
+        shiny::tags$script(js_email()),
+
         # Make the title panel
         shiny::titlePanel(title),
 
@@ -360,7 +370,8 @@ risk_calculator.glm <-
 
             # Information panels
             get_citation(citation),
-            get_disclaimer()
+            get_disclaimer(),
+            get_links(app_name)
           )
         )
       )
@@ -403,5 +414,42 @@ get_citation <-
     shiny::wellPanel(
       htmltools::h3("Click Below for Calculator and Author Contact Information"),
       htmltools::p(citation)
+    )
+  }
+
+# Internal function to create JavaScript function for e-mail prompt
+js_email <-
+  function() {
+    shiny::HTML(
+      'function sendEmail() {
+        var txt;
+        if (confirm("This is a mailbox for reporting website errors to programmers for the risk calculator website.  If you have questions or concerns about a specific calculator, please use the calculator Author Contact Information found on the publication for that calculator.  Each calculator is documented by a specific publication with a corresponding author.")) {
+          window.open("mailto:rcalcsupport@ccf.org");
+        }
+      }'
+    )
+  }
+
+# Internal function to create links
+get_links <-
+  function(app_name) {
+
+    # Check for an app name
+    source_link <- "https://github.com/ClevelandClinicQHS/riskcalc-website"
+    if(!is.null(app_name))
+      source_link <- paste0(source_link, "/tree/main/", app_name)
+
+    htmltools::p(
+      htmltools::a("Homepage", href = "../", style = "font-family: 'Lato','Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 15px;color: #2c3e50;font-weight: bold;text-align: center;text-decoration: underline;"),
+      " | ",
+      htmltools::a("Website Error Messages", href = "javascript:sendEmail()", style = "font-family: 'Lato','Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 15px;color: #2c3e50;font-weight: bold;text-align: center;text-decoration: underline;"),
+      " | ",
+      htmltools::a("Add to phone (iOS Safari)", href="https://support.apple.com/guide/iphone/bookmark-favorite-webpages-iph42ab2f3a7/ios#iph4f9a47bbc", target="_blank", style = "font-family: 'Lato','Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 15px;color: #2c3e50;font-weight: bold;text-align: center;text-decoration: underline;"),
+      " | ",
+      htmltools::a("Add to phone (Android)", href="https://www.cnet.com/tech/mobile/adding-one-touch-bookmarks-to-your-androids-home-screen/", target="_blank", style = "font-family: 'Lato','Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 15px;color: #2c3e50;font-weight: bold;text-align: center;text-decoration: underline;"),
+      " | ",
+      htmltools::a("Source Code", href = source_link, style = "font-family: 'Lato','Helvetica Neue',Helvetica,Arial,sans-serif;font-size: 15px;color: #2c3e50;font-weight: bold;text-align: center;text-decoration: underline;"),
+
+      style = "text-align: center;"
     )
   }
