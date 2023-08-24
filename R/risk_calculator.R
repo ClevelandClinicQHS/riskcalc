@@ -226,7 +226,7 @@ risk_calculator.list <-
 
             # Information panels
             shiny::wellPanel(htmltools::h3("Click Below For More Info"), htmltools::p("Citation")),
-            shiny::wellPanel(htmltools::h3("Disclaimer"), htmltools::p("No Advice."))
+            get_disclaimer()
           )
         )
       )
@@ -357,7 +357,7 @@ risk_calculator.glm <-
 
             # Information panels
             shiny::wellPanel(htmltools::h3("Click Below For More Info"), htmltools::p("Citation")),
-            shiny::wellPanel(htmltools::h3("Disclaimer"), htmltools::p("No Advice."))
+            get_disclaimer()
           )
         )
       )
@@ -383,4 +383,13 @@ risk_calculator.glm <-
     # Run the app
     shiny::shinyApp(ui, server)
 
+  }
+
+# Internal function to create disclaimer
+get_disclaimer <-
+  function() {
+    shiny::wellPanel(
+      htmltools::h3("Disclaimer"),
+      htmltools::p("No Medical Advice. ALTHOUGH SOME CONTENT MAY BE PROVIDED BY INDIVIDUALS IN THE MEDICAL PROFESSION, YOU ACKNOWLEDGE THAT PROVISION OF SUCH CONTENT DOES NOT CREATE A MEDICAL PROFESSIONAL-PATIENT RELATIONSHIP AND DOES NOT CONSTITUTE AN OPINION, MEDICAL ADVICE, PROFESSIONAL DIAGNOSIS, SERVICE OR TREATMENT OF ANY CONDITION. Access to general information is provided for educational purposes only, through this site and links to other sites. Content is not recommended or endorsed by any doctor or healthcare provider. The information and Content provided are not substitutes for medical or professional care, and you should not use the information in place of a visit, call, consultation or the advice of your physician or other healthcare provider. You are liable or responsible for any advice, course of treatment, diagnosis or any other information, services or product obtained through this site.")
+    )
   }
