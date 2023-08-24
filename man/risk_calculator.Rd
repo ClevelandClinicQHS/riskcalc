@@ -8,11 +8,12 @@
 \usage{
 risk_calculator(object, ...)
 
-\method{risk_calculator}{list}(object, outputs, title = "", intercept = 0, ...)
+\method{risk_calculator}{list}(object, outputs, title = "", citation = "", intercept = 0, ...)
 
 \method{risk_calculator}{glm}(
   object,
   title = "",
+  citation = "",
   result_label = "Risk",
   result_type = "response",
   result_format = function(x) paste0(round(100 * x, 1), "\%"),
@@ -27,6 +28,8 @@ risk_calculator(object, ...)
 \item{outputs}{Outputs for risk calculator}
 
 \item{title}{Title for risk calculator}
+
+\item{citation}{Citation to display}
 
 \item{intercept}{Intercept term to add to the linear combination}
 

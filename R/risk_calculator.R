@@ -106,6 +106,7 @@ risk_calculator <-
 #' @rdname risk_calculator
 #' @param outputs Outputs for risk calculator
 #' @param title Title for risk calculator
+#' @param citation Citation to display
 #' @param intercept Intercept term to add to the linear combination
 #' @export
 risk_calculator.list <-
@@ -113,6 +114,7 @@ risk_calculator.list <-
       object, # List of lists giving inputs
       outputs, # List giving outputs
       title = "", # Displays on top of app
+      citation = "", # A citation to place in the app
       intercept = 0, # Intercept to add to the linear predictor
       ...
     ) {
@@ -225,7 +227,7 @@ risk_calculator.list <-
             htmltools::br(),
 
             # Information panels
-            shiny::wellPanel(htmltools::h3("Click Below For More Info"), htmltools::p("Citation")),
+            get_citation(citation),
             get_disclaimer()
           )
         )
@@ -251,6 +253,7 @@ risk_calculator.glm <-
   function(
     object, # A glm model object
     title = "",
+    citation = "",
     result_label = "Risk",
     result_type = "response",
     result_format = function(x) paste0(round(100 * x, 1), "%"),
@@ -356,7 +359,7 @@ risk_calculator.glm <-
             htmltools::br(),
 
             # Information panels
-            shiny::wellPanel(htmltools::h3("Click Below For More Info"), htmltools::p("Citation")),
+            get_citation(citation),
             get_disclaimer()
           )
         )
@@ -391,5 +394,14 @@ get_disclaimer <-
     shiny::wellPanel(
       htmltools::h3("Disclaimer"),
       htmltools::p("No Medical Advice. ALTHOUGH SOME CONTENT MAY BE PROVIDED BY INDIVIDUALS IN THE MEDICAL PROFESSION, YOU ACKNOWLEDGE THAT PROVISION OF SUCH CONTENT DOES NOT CREATE A MEDICAL PROFESSIONAL-PATIENT RELATIONSHIP AND DOES NOT CONSTITUTE AN OPINION, MEDICAL ADVICE, PROFESSIONAL DIAGNOSIS, SERVICE OR TREATMENT OF ANY CONDITION. Access to general information is provided for educational purposes only, through this site and links to other sites. Content is not recommended or endorsed by any doctor or healthcare provider. The information and Content provided are not substitutes for medical or professional care, and you should not use the information in place of a visit, call, consultation or the advice of your physician or other healthcare provider. You are liable or responsible for any advice, course of treatment, diagnosis or any other information, services or product obtained through this site.")
+    )
+  }
+
+# Internal function to create citation
+get_citation <-
+  function(citation) {
+    shiny::wellPanel(
+      htmltools::h3("Click Below for Calculator and Author Contact Information"),
+      htmltools::p(citation)
     )
   }
