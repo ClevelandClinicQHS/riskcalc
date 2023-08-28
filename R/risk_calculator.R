@@ -201,7 +201,12 @@ risk_calculator.list <-
     # Make the server
     server <-
       function(input, output) {
-        output$result <- DT::renderDataTable({eval(parse(text = final_table_expression))})
+
+        # Create the reactive result set dependent on pressing button
+        result_table <- shiny::eventReactive(input$run_calculator, {eval(parse(text = final_table_expression))})
+
+        # Render the table
+        output$result <- DT::renderDataTable({result_table()})
       }
 
     # Run the app
@@ -299,7 +304,7 @@ risk_calculator.glm <-
       function(input, output) {
 
         # Make a reactive input data frame
-        input_data <- shiny::reactive({eval(parse(text = server_input_data))})
+        input_data <- shiny::eventReactive(input$run_calculator, {eval(parse(text = server_input_data))})
 
         # Show result
         output$result <-
