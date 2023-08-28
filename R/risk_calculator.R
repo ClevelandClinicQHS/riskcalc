@@ -106,7 +106,7 @@ risk_calculator.glm <-
     ui <- get_UI(title, shiny_inputs, citation, app_name)
 
     # Make the server
-    server <- get_server(server_input_data, label, model, type)
+    server <- get_server(server_input_data, format, label, model, type)
 
     # Run the app
     shiny::shinyApp(ui, server)
@@ -115,7 +115,7 @@ risk_calculator.glm <-
 
 # Internal function to create the server function
 get_server <-
-  function(server_input_data, label, model, type) {
+  function(server_input_data, format, label, model, type) {
 
     function(input, output) {
 
