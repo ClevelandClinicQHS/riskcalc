@@ -16,8 +16,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 The goal of `riskcalc` is to provide a toolkit for building
 [`shiny`](https://www.rstudio.com/products/shiny/)-based risk
-calculators for individualized prediction. Motivated by the look, feel,
-and functionality of the applications at <https://riskcalc.org/>.
+calculators for <https://riskcalc.org/>.
 
 ## Installation
 
