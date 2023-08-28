@@ -11,7 +11,6 @@ risk_calculator(model, ...)
   model,
   title = "",
   citation = "",
-  type = "response",
   label = "Estimated Risk",
   format = function(x) paste0(round(100 * x, 1), "\%"),
   app_name = NULL,
@@ -26,8 +25,6 @@ risk_calculator(model, ...)
 \item{title}{Title for risk calculator (see \code{\link[shiny]{titlePanel}})}
 
 \item{citation}{Citation(s) and author information}
-
-\item{type}{Response type to be calculated (see the \code{type} argument in \code{\link[stats]{predict.glm}})}
 
 \item{label}{Label for the calculated value}
 

@@ -20,7 +20,6 @@ risk_calculator <-
 #' @rdname risk_calculator
 #' @param title Title for risk calculator (see \code{\link[shiny]{titlePanel}})
 #' @param citation Citation(s) and author information
-#' @param type Response type to be calculated (see the \code{type} argument in \code{\link[stats]{predict.glm}})
 #' @param label Label for the calculated value
 #' @param format Function to format the calculated value for display (assumes percentage by default)
 #' @param app_name App shorthand, like \code{"AppExample"} (https://riskcalc.org/AppExample/)
@@ -30,7 +29,6 @@ risk_calculator.glm <-
     model,
     title = "",
     citation = "",
-    type = "response",
     label = "Estimated Risk",
     format = \(x) paste0(round(100 * x, 1), "%"),
     app_name = NULL,
@@ -106,7 +104,7 @@ risk_calculator.glm <-
     ui <- get_UI(title, shiny_inputs, citation, app_name)
 
     # Make the server
-    server <- get_server(server_input_data, format, label, model, type)
+    server <- get_server(server_input_data, format, label, model)
 
     # Run the app
     shiny::shinyApp(ui, server)
@@ -115,7 +113,7 @@ risk_calculator.glm <-
 
 # Internal function to create the server function
 get_server <-
-  function(server_input_data, format, label, model, type) {
+  function(server_input_data, format, label, model) {
 
     function(input, output) {
 
@@ -127,7 +125,7 @@ get_server <-
         DT::renderDataTable({
           data.frame(
             Result = label,
-            Probability = format(stats::predict(model, newdata = input_data(), type = type))
+            Probability = format(stats::predict(model, newdata = input_data(), type = "response"))
           )
         })
 
