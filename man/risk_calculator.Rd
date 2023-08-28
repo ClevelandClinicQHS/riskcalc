@@ -2,148 +2,47 @@
 % Please edit documentation in R/risk_calculator.R
 \name{risk_calculator}
 \alias{risk_calculator}
-\alias{risk_calculator.list}
 \alias{risk_calculator.glm}
 \title{Build a risk calculator}
 \usage{
-risk_calculator(object, ...)
-
-\method{risk_calculator}{list}(
-  object,
-  outputs,
-  title = "",
-  citation = "",
-  app_name = NULL,
-  intercept = 0,
-  ...
-)
+risk_calculator(model, ...)
 
 \method{risk_calculator}{glm}(
-  object,
+  model,
   title = "",
   citation = "",
+  type = "response",
+  label = "Estimated Risk",
+  format = function(x) paste0(round(100 * x, 1), "\%"),
   app_name = NULL,
-  result_label = "Risk",
-  result_type = "response",
-  result_format = function(x) paste0(round(100 * x, 1), "\%"),
   ...
 )
 }
 \arguments{
-\item{object}{An R object}
+\item{model}{A \code{\link[stats]{glm}} object}
 
 \item{...}{Additional arguments}
 
-\item{outputs}{Outputs for risk calculator}
+\item{title}{Title for risk calculator (see \code{\link[shiny]{titlePanel}})}
 
-\item{title}{Title for risk calculator}
+\item{citation}{Citation(s) and author information}
 
-\item{citation}{Citation to display}
+\item{type}{Response type to be calculated (see the \code{type} argument in \code{\link[stats]{predict.glm}})}
 
-\item{app_name}{App shorthand (riskcalc.org/app_name)}
+\item{label}{Label for the calculated value}
 
-\item{intercept}{Intercept term to add to the linear combination}
+\item{format}{Function to format the calculated value for display (assumes percentage by default)}
 
-\item{result_label}{Calculation title in table}
-
-\item{result_type}{See the \code{type} argument in \code{\link[stats]{predict.glm}}}
-
-\item{result_format}{Function to format the calculated value}
+\item{app_name}{App shorthand, like \code{"AppExample"} (https://riskcalc.org/AppExample/)}
 }
 \value{
-A shiny app
+A \code{\link[shiny]{shiny}} application
 }
 \description{
-Construct a \code{\link[shiny]{shiny}}-based risk calculator through different input options
+Construct a formatted \code{\link[shiny]{shiny}}-based risk calculator through different model inputs
 }
 \examples{
-# Example from https://riskcalc.org/bladderCancer/
-# Source code: https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/bladderCancer
-
-# Build set of inputs
-inputs <-
-
-  # Each element is one input (risk factor) in that order
-  list(
-    Gender =
-      list(
-        label = "Gender",
-        levels = c("Female", "Male"), # Indicates categorical
-        weights = c(0, 0.034072352)
-      ),
-    AgeYr =
-      list(
-        label = "Age (Years)",
-        range = c(20, 100), # Indicates numeric
-        x_trans =
-          list(
-            \(x)x,
-            \(x)max(x - 44, 0)**3,
-            \(x)max(x - 62, 0)**3,
-            \(x)max(x - 77, 0)**3
-           ), # Each of these contributes to weighted sum
-        weights = c(0.0041362795, 7.4691198e-06, 1.6432063e-05, 8.9629437e-06)
-      ),
-    Stage97 =
-      list(
-        label = "RC Tumor Pathology",
-        levels = c("pT0", "pTa", "pTis", "pT1", "pT2", "pT3", "pT4"),
-        weights = c(0, 0.87060903, 0.55456587, 1.0188265, 1.2332424, 1.8741757, 2.4566641)
-      ),
-    Histology =
-      list(
-        label = "RC Tumor Histology",
-        levels = c("ADENOCARCINOMA", "SCC", "TCC"),
-        weights = c(0, 0.34940226, 0.72706351)
-      ),
-    Grade =
-      list(
-        label = "RC Tumor Grade",
-        levels = c("GX", "High", "Low"),
-        weights = c(0, 0.17941245, 0.69780658)
-      ),
-    NodeResult =
-      list(
-        label = "Lymph Node Status",
-        levels = c("NX", "Negative", "Positive"),
-        weights = c(0, 0.29095514, 0.87448703)
-      ),
-    DxToRC =
-      list(
-        label = "Days Between Dx and RC (Days)",
-        range = c(0, 100000),
-        x_trans =
-          list(
-            \(x)x,
-            \(x)max(x - 0.45996875, 0)**3,
-            \(x)max(x - 3.5483304, 0)**3,
-            \(x)max(x - 27.808397, 0)**3
-           ),
-        weights = c(0, 2.9994932e-05, 3.3813355e-05, 3.8184231e-06)
-      )
-  )
-
-# Build outputs to display in the table
-outputs <-
-  list(
-    res =
-      list(
-        label = "Percentage of 5-Year Recurrence-Free Survival",
-        lp_trans = \(x) 100 * 0.7524126 ** exp(x) # Transformation for linear predictor
-      )
-  )
-
-# Create the risk calculator
 if(interactive()) {
-  risk_calculator(
-    inputs,
-    outputs = outputs,
-    title =
-      paste(
-        "Predicting 5-Year Recurrence-Free Survival",
-        "after Radical Cystectomy for Bladder Cancer"
-       ),
-    intercept = -2.1264314
-  )
+  risk_calculator(glm(1~1))
 }
 }
