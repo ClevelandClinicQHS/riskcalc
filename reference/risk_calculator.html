@@ -52,9 +52,11 @@
 <span>  <span class="va">model</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  citation <span class="op">=</span> <span class="st">""</span>,</span>
-<span>  label <span class="op">=</span> <span class="st">"Estimated Risk"</span>,</span>
-<span>  format <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">x</span>, <span class="fl">1</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,</span>
+<span>  label <span class="op">=</span> <span class="st">"Predicted Value"</span>,</span>
+<span>  format <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  app_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  labels <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  levels <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -82,11 +84,19 @@
 
 
 <dt>format</dt>
-<dd><p>Function to format the calculated value for display (assumes percentage by default)</p></dd>
+<dd><p>Function to format the predicted value for display</p></dd>
 
 
 <dt>app_name</dt>
 <dd><p>App shorthand, like <code>"AppExample"</code> (https://riskcalc.org/AppExample/)</p></dd>
+
+
+<dt>labels</dt>
+<dd><p>Named character vector specifying labels for any inputs</p></dd>
+
+
+<dt>levels</dt>
+<dd><p>Named list of named character vectors specifying labels for any factor levels</p></dd>
 
 </dl></div>
     <div class="section level2">
