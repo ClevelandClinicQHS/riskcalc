@@ -27,7 +27,7 @@ The goal of `riskcalc` is to provide a toolkit for building [`shiny`](https://ww
 
 ## Installation
 
-You can install the development version of riskcalc from [GitHub](https://github.com/) with:
+You can install the development version of `riskcalc` from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")

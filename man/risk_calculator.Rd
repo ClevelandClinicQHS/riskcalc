@@ -11,9 +11,11 @@ risk_calculator(model, ...)
   model,
   title = "",
   citation = "",
-  label = "Estimated Risk",
-  format = function(x) paste0(round(100 * x, 1), "\%"),
+  label = "Predicted Value",
+  format = NULL,
   app_name = NULL,
+  labels = NULL,
+  levels = NULL,
   ...
 )
 }
@@ -28,9 +30,13 @@ risk_calculator(model, ...)
 
 \item{label}{Label for the calculated value}
 
-\item{format}{Function to format the calculated value for display (assumes percentage by default)}
+\item{format}{Function to format the predicted value for display}
 
 \item{app_name}{App shorthand, like \code{"AppExample"} (https://riskcalc.org/AppExample/)}
+
+\item{labels}{Named character vector specifying labels for any inputs}
+
+\item{levels}{Named list of named character vectors specifying labels for any factor levels}
 }
 \value{
 A \code{\link[shiny]{shiny}} application

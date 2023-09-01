@@ -21,30 +21,54 @@ risk_calculator <-
 #' @param title Title for risk calculator (see \code{\link[shiny]{titlePanel}})
 #' @param citation Citation(s) and author information
 #' @param label Label for the calculated value
-#' @param format Function to format the calculated value for display (assumes percentage by default)
+#' @param format Function to format the predicted value for display
 #' @param app_name App shorthand, like \code{"AppExample"} (https://riskcalc.org/AppExample/)
+#' @param labels Named character vector specifying labels for any inputs
+#' @param levels Named list of named character vectors specifying labels for any factor levels
 #' @export
 risk_calculator.glm <-
   function(
     model,
     title = "",
     citation = "",
-    label = "Estimated Risk",
-    format = \(x) paste0(round(100 * x, 1), "%"),
+    label = "Predicted Value",
+    format = NULL,
     app_name = NULL,
+    labels = NULL,
+    levels = NULL,
     ...
   ) {
 
-    # Iterate to create the shiny input objects, server expressions, etc.
+    ## Setup the input parameters
+
+    # Extract the model inputs
     inputs <- attr(model$terms, "dataClasses")[-1]
+
+    # Specify the ids, types, and labels
+    input_ids <- names(inputs)
+    input_types <- unname(inputs)
+    input_labels <- input_ids
+
+    # If specified, setup the clean labels
+    if(!is.null(labels))
+      for(i in seq_along(labels))
+        input_labels[which(input_labels == names(labels)[i])] <- labels[i]
+
+    # Set the formatting function to display as-is by default
+    if(is.null(format))
+      format <- function(x) x
+
+    # Create placeholders for object storage
     shiny_inputs <- list()
     server_expressions <- c()
+
+    # Iterate to create the shiny input objects, server expressions, etc.
     for(i in seq_along(inputs)) {
 
       # Extract common arguments
-      this_inputId <- names(inputs)[i]
-      this_label <- names(inputs)[i]
-      this_class <- inputs[i][[1]]
+      this_inputId <- input_ids[i]
+      this_class <- input_types[i]
+      this_label <- input_labels[i]
 
       # Check for numeric input
       if(this_class %in% c("numeric", "integer")) {
@@ -80,6 +104,14 @@ risk_calculator.glm <-
           this_server_expression <- paste0(this_inputId, "=input$", this_inputId)
 
         }
+
+        # Set the default names of the choices
+        names(these_choices) <- these_choices
+
+        # Check if the current input has new labels to be assigned
+        if(this_inputId %in% names(levels))
+          for(j in seq_along(levels[[this_inputId]]))
+            names(these_choices)[which(these_choices == names(levels[[this_inputId]])[j])] <- unname(levels[[this_inputId]][j])
 
         # Create the input for categorical variable
         this_shiny_input <-
@@ -125,7 +157,7 @@ get_server <-
         DT::renderDataTable({
           data.frame(
             Result = label,
-            Probability = format(stats::predict(model, newdata = input_data(), type = "response"))
+            Value = format(stats::predict(model, newdata = input_data(), type = "response"))
           )
         })
 

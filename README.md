@@ -20,7 +20,7 @@ calculators for <https://riskcalc.org/>.
 
 ## Installation
 
-You can install the development version of riskcalc from
+You can install the development version of `riskcalc` from
 [GitHub](https://github.com/) with:
 
 ``` r
