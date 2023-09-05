@@ -57,6 +57,7 @@
 <span>  app_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  labels <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  levels <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  placeholders <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -97,6 +98,10 @@
 
 <dt>levels</dt>
 <dd><p>Named list of named character vectors specifying labels for any factor levels</p></dd>
+
+
+<dt>placeholders</dt>
+<dd><p>Named character vector specifying range limits for numeric input variables (of the form <code>c(var="&lt;min&gt;-&lt;max&gt;")</code>). Invokes calls to <code><a href="https://rdrr.io/pkg/shiny/man/validate.html" class="external-link">validate</a></code> enforcing the limits.</p></dd>
 
 </dl></div>
     <div class="section level2">
