@@ -25,6 +25,7 @@ risk_calculator <-
 #' @param app_name App shorthand, like \code{"AppExample"} (https://riskcalc.org/AppExample/)
 #' @param labels Named character vector specifying labels for any inputs
 #' @param levels Named list of named character vectors specifying labels for any factor levels
+#' @param placeholders Named character vector specifying range limits for numeric input variables (of the form \code{c(var="<min>-<max>")}). Invokes calls to \code{\link[shiny]{validate}} enforcing the limits.
 #' @export
 risk_calculator.glm <-
   function(
@@ -36,6 +37,7 @@ risk_calculator.glm <-
     app_name = NULL,
     labels = NULL,
     levels = NULL,
+    placeholders = NULL,
     ...
   ) {
 
@@ -61,6 +63,7 @@ risk_calculator.glm <-
     # Create placeholders for object storage
     shiny_inputs <- list()
     server_expressions <- c()
+    server_validations <- c()
 
     # Iterate to create the shiny input objects, server expressions, etc.
     for(i in seq_along(inputs)) {
@@ -73,11 +76,27 @@ risk_calculator.glm <-
       # Check for numeric input
       if(this_class %in% c("numeric", "integer")) {
 
+        # Set this input's placeholder
+        this_placeholder <- NULL
+        if(this_inputId %in% names(placeholders)) {
+
+          # Set the placeholder to display
+          this_placeholder <- placeholders[which(names(placeholders) == this_inputId)]
+
+          # Parse the limits
+          these_limits <- as.numeric(strsplit(this_placeholder, "\\s{0,1}-\\s{0,1}")[[1]])
+
+          # Add validation expression
+          server_validations <- c(server_validations, paste0("shiny::validate(shiny::need(!is.na(as.numeric(input$", this_inputId, "))&as.numeric(input$", this_inputId, ")>=", these_limits[1], "&as.numeric(input$", this_inputId, ")<=", these_limits[2], ",'Input a valid ", this_label, "'))"))
+
+        }
+
         # Create the input for numeric variable
         this_shiny_input <-
           shiny::textInput(
             inputId = this_inputId,
-            label = this_label
+            label = this_label,
+            placeholder = this_placeholder
           )
 
         # Set the server expression
@@ -132,11 +151,14 @@ risk_calculator.glm <-
     # Make the input data frame expression
     server_input_data <- paste0("data.frame(", paste(server_expressions, collapse = ","), ")")
 
+    # Make the server validation expression for numeric inputs
+    server_validations <- paste(server_validations, collapse = ";")
+
     # Make a UI
     ui <- get_UI(title, shiny_inputs, citation, app_name)
 
     # Make the server
-    server <- get_server(server_input_data, format, label, model)
+    server <- get_server(server_input_data, format, label, model, server_validations)
 
     # Run the app
     shiny::shinyApp(ui, server)
@@ -145,12 +167,23 @@ risk_calculator.glm <-
 
 # Internal function to create the server function
 get_server <-
-  function(server_input_data, format, label, model) {
+  function(server_input_data, format, label, model, server_validations) {
 
     function(input, output) {
 
       # Make a reactive input data frame
-      input_data <- shiny::eventReactive(input$run_calculator, {eval(parse(text = server_input_data))})
+      input_data <-
+        shiny::eventReactive(
+          input$run_calculator, {
+
+            # Check for validations
+            if(server_validations != "")
+              eval(parse(text = server_validations))
+
+            # Build the input data set
+            eval(parse(text = server_input_data))
+
+          })
 
       # Show result
       output$result <-

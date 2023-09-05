@@ -16,6 +16,7 @@ risk_calculator(model, ...)
   app_name = NULL,
   labels = NULL,
   levels = NULL,
+  placeholders = NULL,
   ...
 )
 }
@@ -37,6 +38,8 @@ risk_calculator(model, ...)
 \item{labels}{Named character vector specifying labels for any inputs}
 
 \item{levels}{Named list of named character vectors specifying labels for any factor levels}
+
+\item{placeholders}{Named character vector specifying range limits for numeric input variables (of the form \code{c(var="<min>-<max>")}). Invokes calls to \code{\link[shiny]{validate}} enforcing the limits.}
 }
 \value{
 A \code{\link[shiny]{shiny}} application
