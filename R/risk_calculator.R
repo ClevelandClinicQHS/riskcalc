@@ -21,6 +21,8 @@ risk_calculator <-
 #' @param title Title for risk calculator (see \code{\link[shiny]{titlePanel}})
 #' @param citation Citation(s) and author information
 #' @param label Label for the calculated value
+#' @param label_header Header label for the result descriptor
+#' @param value_header Header label for the result value
 #' @param format Function to format the predicted value for display
 #' @param app_name App shorthand, like \code{"AppExample"} (https://riskcalc.org/AppExample/)
 #' @param labels Named character vector specifying labels for any inputs
@@ -33,6 +35,8 @@ risk_calculator.glm <-
     title = "",
     citation = "",
     label = "Predicted Value",
+    label_header = "Result",
+    value_header = "Value",
     format = NULL,
     app_name = NULL,
     labels = NULL,
@@ -158,7 +162,7 @@ risk_calculator.glm <-
     ui <- get_UI(title, shiny_inputs, citation, app_name)
 
     # Make the server
-    server <- get_server(server_input_data, format, label, model, server_validations)
+    server <- get_server(server_input_data, format, label, model, server_validations, label_header, value_header)
 
     # Run the app
     shiny::shinyApp(ui, server)
@@ -167,7 +171,7 @@ risk_calculator.glm <-
 
 # Internal function to create the server function
 get_server <-
-  function(server_input_data, format, label, model, server_validations) {
+  function(server_input_data, format, label, model, server_validations, label_header, value_header) {
 
     function(input, output) {
 
@@ -189,10 +193,16 @@ get_server <-
       output$result <-
         DT::renderDataTable(
           {
-            data.frame(
-              Result = label,
-              Value = format(stats::predict(model, newdata = input_data(), type = "response"))
-            )
+            # Make the data frame
+            result_dat <-
+              data.frame(
+                Result = label,
+                Value = format(stats::predict(model, newdata = input_data(), type = "response"))
+              )
+
+            # Set the headers
+            colnames(result_dat) <- c(label_header, value_header)
+            result_dat
           },
           options =
             list(

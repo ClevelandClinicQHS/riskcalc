@@ -12,6 +12,8 @@ risk_calculator(model, ...)
   title = "",
   citation = "",
   label = "Predicted Value",
+  label_header = "Result",
+  value_header = "Value",
   format = NULL,
   app_name = NULL,
   labels = NULL,
@@ -30,6 +32,10 @@ risk_calculator(model, ...)
 \item{citation}{Citation(s) and author information}
 
 \item{label}{Label for the calculated value}
+
+\item{label_header}{Header label for the result descriptor}
+
+\item{value_header}{Header label for the result value}
 
 \item{format}{Function to format the predicted value for display}
 
