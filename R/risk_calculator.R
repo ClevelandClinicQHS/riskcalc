@@ -187,12 +187,29 @@ get_server <-
 
       # Show result
       output$result <-
-        DT::renderDataTable({
-          data.frame(
-            Result = label,
-            Value = format(stats::predict(model, newdata = input_data(), type = "response"))
-          )
-        })
+        DT::renderDataTable(
+          {
+            data.frame(
+              Result = label,
+              Value = format(stats::predict(model, newdata = input_data(), type = "response"))
+            )
+          },
+          options =
+            list(
+              pageLength = 10,
+              lengthMenu = 0,
+              searching = 0,
+              info = 0,
+              paging = 0,
+              initComplete =
+                DT::JS(
+                  "function(settings, json) {
+                    $(this.api().table().header()).css({'background-color': '#606060', 'color': '#fff'});
+                  }"
+                )
+            ),
+          rownames = FALSE
+        )
 
     }
 
