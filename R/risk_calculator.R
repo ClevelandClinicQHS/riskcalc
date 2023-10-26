@@ -49,6 +49,7 @@ risk_calculator.glm <-
 
     # Extract the model inputs
     inputs <- attr(model$terms, "dataClasses")[-1]
+    inputs <- inputs[names(inputs) %in% attr(model$terms, "term.labels")]
 
     # Specify the ids, types, and labels
     input_ids <- names(inputs)
