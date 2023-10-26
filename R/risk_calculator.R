@@ -2,7 +2,7 @@
 #'
 #' @description Construct a formatted \code{\link[shiny]{shiny}}-based risk calculator through different model inputs
 #'
-#' @param model A \code{\link[stats]{glm}} object
+#' @param model A \code{\link[stats]{glm}} object whose \code{\link[stats]{formula}} only has non-negated factors
 #' @param ... Additional arguments
 #'
 #' @return A \code{\link[shiny]{shiny}} application

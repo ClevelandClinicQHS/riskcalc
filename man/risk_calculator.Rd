@@ -23,7 +23,7 @@ risk_calculator(model, ...)
 )
 }
 \arguments{
-\item{model}{A \code{\link[stats]{glm}} object}
+\item{model}{A \code{\link[stats]{glm}} object whose \code{\link[stats]{formula}} only has non-negated factors}
 
 \item{...}{Additional arguments}
 
