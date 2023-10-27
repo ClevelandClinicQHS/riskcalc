@@ -2,16 +2,11 @@
 #'
 #' @description Construct a formatted \code{\link[shiny]{shiny}}-based risk calculator through different model inputs
 #'
-#' @param model A \code{\link[stats]{glm}} object whose \code{\link[stats]{formula}} only has non-negated factors
+#' @param model A \code{\link[stats]{glm}} or \code{\link[survival]{coxph}} object whose \code{\link[stats]{formula}} only has non-negated factors
 #' @param ... Additional arguments
 #'
 #' @return A \code{\link[shiny]{shiny}} application
 #' @export
-#'
-#' @examples
-#' if(interactive()) {
-#'   risk_calculator(glm(1~1))
-#' }
 risk_calculator <-
   function(model, ...) {
     UseMethod("risk_calculator", model)
@@ -45,7 +40,196 @@ risk_calculator.glm <-
     ...
   ) {
 
-    ## Setup the input parameters
+    # Retrieve the app expressions
+    all_expressions <- build_input_expressions(model, labels, levels, placeholders)
+    shiny_inputs <- all_expressions$shiny_inputs
+    server_input_data <- all_expressions$server_input_data
+    server_validations <- all_expressions$server_validations
+
+    # Set the formatting function to display as-is by default
+    if(is.null(format))
+      format <- function(x) x
+
+    # Make a UI
+    ui <- get_UI(title, shiny_inputs, citation, app_name)
+
+    # Make the server
+    server <- get_server(server_input_data, format, label, server_validations, label_header, value_header, prediction_engine_glm(model))
+
+    # Run the app
+    shiny::shinyApp(ui, server)
+
+  }
+
+#' @rdname risk_calculator
+#' @param time Single time point to calculate survival probability (see \code{\link[survival]{summary.survfit}})
+#' @export
+#' @examples
+#' # Make a data set
+#' dat <- survival::gbsg
+#' dat$meno <- factor(dat$meno)
+#'
+#' # Build a model
+#' mod <-
+#'   survival::coxph(
+#'     formula = survival::Surv(rfstime, status) ~ age + meno,
+#'     data = dat
+#'   )
+#'
+#' # Time point of interest
+#' time <- median(dat$rfstime) # 1084
+#'
+#' # Create the risk calculator
+#' if(interactive()) {
+#'   risk_calculator(
+#'     model = mod,
+#'     time = time,
+#'     title = "Risk of Death or Recurrence in Breast Cancer",
+#'     citation =
+#'       paste0(
+#'         "Patrick Royston and Douglas Altman, External validation of a Cox prognostic",
+#'         "model: principles and methods. BMC Medical Research Methodology 2013, 13:33"
+#'       ),
+#'     label_header = "Probability Of Death or Recurrence",
+#'     label = paste0("At time = ", time),
+#'     labels = c(age = "Age (years)", meno = "Menopausal Status"),
+#'     levels = list(meno = c(`0` = "Premenopausal", `1` = "Postmenopausal")),
+#'     placeholders = c(age = "21-80"),
+#'     format = function(x) paste0(round(100 * (1 - x), 2), "%")
+#'   )
+#' }
+risk_calculator.coxph <-
+  function(
+    model,
+    time,
+    title = "",
+    citation = "",
+    label = "Survival Probability",
+    label_header = "Result",
+    value_header = "Value",
+    format = NULL,
+    app_name = NULL,
+    labels = NULL,
+    levels = NULL,
+    placeholders = NULL,
+    ...
+  ) {
+
+    # Check time input
+    if(missing(time))
+      stop("Please specify a survival time point of interest.")
+
+    # Check for type
+    if(!(class(time) %in% c("numeric", "integer")))
+      stop("Survival time point must be numeric")
+
+    # Check for length
+    if(length(time) > 1)
+      stop("Please select a single time point of interest.")
+
+    # Retrieve the app expressions
+    all_expressions <- build_input_expressions(model, labels, levels, placeholders)
+    shiny_inputs <- all_expressions$shiny_inputs
+    server_input_data <- all_expressions$server_input_data
+    server_validations <- all_expressions$server_validations
+
+    # Set the formatting function to display as-is by default
+    if(is.null(format))
+      format <- function(x) x
+
+    # Make a UI
+    ui <- get_UI(title, shiny_inputs, citation, app_name)
+
+    # Make the server
+    server <- get_server(server_input_data, format, label, server_validations, label_header, value_header, prediction_engine_coxph(model, time))
+
+    # Run the app
+    shiny::shinyApp(ui, server)
+
+  }
+
+# Internal function to create the prediction engine for glm
+prediction_engine_glm <-
+  function(model) {
+    function(input_dat) stats::predict(model, newdata = input_dat, type = "response")
+  }
+
+# Internal function to create the prediction engine for coxph
+prediction_engine_coxph <-
+  function(model, time) {
+    function(input_dat) {
+
+      # Extract the full survival curve
+      surv_curve <- survival::survfit(model, newdata = input_dat)
+
+      # Find the survival at the specified time point
+      surv_t <- summary(surv_curve, times = time)
+
+      # Return the survival probability
+      surv_t$surv
+
+    }
+  }
+
+# Internal function to create the server function
+get_server <-
+  function(server_input_data, format, label, server_validations, label_header, value_header, prediction_engine) {
+
+    function(input, output) {
+
+      # Make a reactive input data frame
+      input_data <-
+        shiny::eventReactive(
+          input$run_calculator, {
+
+            # Check for validations
+            if(server_validations != "")
+              eval(parse(text = server_validations))
+
+            # Build the input data set
+            eval(parse(text = server_input_data))
+
+          })
+
+      # Show result
+      output$result <-
+        DT::renderDataTable(
+          {
+            # Make the data frame
+            result_dat <-
+              data.frame(
+                Result = label,
+                Value = format(prediction_engine(input_data()))
+              )
+
+            # Set the headers
+            colnames(result_dat) <- c(label_header, value_header)
+            result_dat
+          },
+          options =
+            list(
+              pageLength = 10,
+              lengthMenu = 0,
+              searching = 0,
+              info = 0,
+              paging = 0,
+              initComplete =
+                DT::JS(
+                  "function(settings, json) {
+                    $(this.api().table().header()).css({'background-color': '#606060', 'color': '#fff'});
+                  }"
+                )
+            ),
+          rownames = FALSE
+        )
+
+    }
+
+  }
+
+# Internal function to build the various ui/server expressions
+build_input_expressions <-
+  function(model, labels, levels, placeholders) {
 
     # Extract the model inputs
     inputs <- attr(model$terms, "dataClasses")[-1]
@@ -60,10 +244,6 @@ risk_calculator.glm <-
     if(!is.null(labels))
       for(i in seq_along(labels))
         input_labels[which(input_labels == names(labels)[i])] <- labels[i]
-
-    # Set the formatting function to display as-is by default
-    if(is.null(format))
-      format <- function(x) x
 
     # Create placeholders for object storage
     shiny_inputs <- list()
@@ -159,70 +339,12 @@ risk_calculator.glm <-
     # Make the server validation expression for numeric inputs
     server_validations <- paste(server_validations, collapse = ";")
 
-    # Make a UI
-    ui <- get_UI(title, shiny_inputs, citation, app_name)
-
-    # Make the server
-    server <- get_server(server_input_data, format, label, model, server_validations, label_header, value_header)
-
-    # Run the app
-    shiny::shinyApp(ui, server)
-
-  }
-
-# Internal function to create the server function
-get_server <-
-  function(server_input_data, format, label, model, server_validations, label_header, value_header) {
-
-    function(input, output) {
-
-      # Make a reactive input data frame
-      input_data <-
-        shiny::eventReactive(
-          input$run_calculator, {
-
-            # Check for validations
-            if(server_validations != "")
-              eval(parse(text = server_validations))
-
-            # Build the input data set
-            eval(parse(text = server_input_data))
-
-          })
-
-      # Show result
-      output$result <-
-        DT::renderDataTable(
-          {
-            # Make the data frame
-            result_dat <-
-              data.frame(
-                Result = label,
-                Value = format(stats::predict(model, newdata = input_data(), type = "response"))
-              )
-
-            # Set the headers
-            colnames(result_dat) <- c(label_header, value_header)
-            result_dat
-          },
-          options =
-            list(
-              pageLength = 10,
-              lengthMenu = 0,
-              searching = 0,
-              info = 0,
-              paging = 0,
-              initComplete =
-                DT::JS(
-                  "function(settings, json) {
-                    $(this.api().table().header()).css({'background-color': '#606060', 'color': '#fff'});
-                  }"
-                )
-            ),
-          rownames = FALSE
-        )
-
-    }
+    # Return a list of objects
+    list(
+      shiny_inputs = shiny_inputs,
+      server_input_data  = server_input_data,
+      server_validations = server_validations
+    )
 
   }
 

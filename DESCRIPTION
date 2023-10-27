@@ -18,5 +18,6 @@ Imports:
     lifecycle,
     shiny,
     shinythemes,
-    stats
+    stats,
+    survival
 URL: https://clevelandclinicqhs.github.io/riskcalc/

@@ -3,6 +3,7 @@
 \name{risk_calculator}
 \alias{risk_calculator}
 \alias{risk_calculator.glm}
+\alias{risk_calculator.coxph}
 \title{Build a risk calculator}
 \usage{
 risk_calculator(model, ...)
@@ -21,9 +22,25 @@ risk_calculator(model, ...)
   placeholders = NULL,
   ...
 )
+
+\method{risk_calculator}{coxph}(
+  model,
+  time,
+  title = "",
+  citation = "",
+  label = "Survival Probability",
+  label_header = "Result",
+  value_header = "Value",
+  format = NULL,
+  app_name = NULL,
+  labels = NULL,
+  levels = NULL,
+  placeholders = NULL,
+  ...
+)
 }
 \arguments{
-\item{model}{A \code{\link[stats]{glm}} object whose \code{\link[stats]{formula}} only has non-negated factors}
+\item{model}{A \code{\link[stats]{glm}} or \code{\link[survival]{coxph}} object whose \code{\link[stats]{formula}} only has non-negated factors}
 
 \item{...}{Additional arguments}
 
@@ -46,6 +63,8 @@ risk_calculator(model, ...)
 \item{levels}{Named list of named character vectors specifying labels for any factor levels}
 
 \item{placeholders}{Named character vector specifying range limits for numeric input variables (of the form \code{c(var="<min>-<max>")}). Invokes calls to \code{\link[shiny]{validate}} enforcing the limits.}
+
+\item{time}{Single time point to calculate survival probability (see \code{\link[survival]{summary.survfit}})}
 }
 \value{
 A \code{\link[shiny]{shiny}} application
@@ -54,7 +73,37 @@ A \code{\link[shiny]{shiny}} application
 Construct a formatted \code{\link[shiny]{shiny}}-based risk calculator through different model inputs
 }
 \examples{
+# Make a data set
+dat <- survival::gbsg
+dat$meno <- factor(dat$meno)
+
+# Build a model
+mod <-
+  survival::coxph(
+    formula = survival::Surv(rfstime, status) ~ age + meno,
+    data = dat
+  )
+
+# Time point of interest
+time <- median(dat$rfstime) # 1084
+
+# Create the risk calculator
 if(interactive()) {
-  risk_calculator(glm(1~1))
+  risk_calculator(
+    model = mod,
+    time = time,
+    title = "Risk of Death or Recurrence in Breast Cancer",
+    citation =
+      paste0(
+        "Patrick Royston and Douglas Altman, External validation of a Cox prognostic",
+        "model: principles and methods. BMC Medical Research Methodology 2013, 13:33"
+      ),
+    label_header = "Probability Of Death or Recurrence",
+    label = paste0("At time = ", time),
+    labels = c(age = "Age (years)", meno = "Menopausal Status"),
+    levels = list(meno = c(`0` = "Premenopausal", `1` = "Postmenopausal")),
+    placeholders = c(age = "21-80"),
+    format = function(x) paste0(round(100 * (1 - x), 2), "\%")
+  )
 }
 }
