@@ -231,9 +231,12 @@ get_server <-
 build_input_expressions <-
   function(model, labels, levels, placeholders) {
 
-    # Extract the model inputs
+    # Extract the model terms
     inputs <- attr(model$terms, "dataClasses")[-1]
-    inputs <- inputs[names(inputs) %in% attr(model$terms, "term.labels")]
+
+    # Check if any terms are not in the model
+    if(!all(names(inputs) %in% attr(model$terms, "term.labels")))
+      stop("Term(s) not included in model found in formula. Please only specify model via inclusion.")
 
     # Specify the ids, types, and labels
     input_ids <- names(inputs)
