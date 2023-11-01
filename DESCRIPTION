@@ -21,3 +21,6 @@ Imports:
     stats,
     survival
 URL: https://clevelandclinicqhs.github.io/riskcalc/
+Depends: 
+    R (>= 2.10)
+LazyData: true
