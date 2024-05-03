@@ -23,6 +23,7 @@ risk_calculator <-
 #' @param labels Named character vector specifying labels for any inputs
 #' @param levels Named list of named character vectors specifying labels for any factor levels
 #' @param placeholders Named character vector specifying range limits for numeric input variables (of the form \code{c(var="<min>-<max>")}). Invokes calls to \code{\link[shiny]{validate}} enforcing the limits.
+#' @param build_directory Location to export files into an application directory. The \code{app_name} will name the folder (if no name is provided, a generic folder name "riskcalc_app" is used).
 #' @export
 risk_calculator.glm <-
   function(
@@ -37,21 +38,37 @@ risk_calculator.glm <-
     labels = NULL,
     levels = NULL,
     placeholders = NULL,
+    build_directory = NULL,
     ...
   ) {
 
+    # Set default values
+    export_app_to_folder <- !is.null(build_directory)
+    new_directory <- NULL
+
+    # Build app directory (if requested)
+    if(export_app_to_folder) {
+
+      # Create the new directory
+      new_directory <- create_app_directory(build_directory, app_name)
+
+      # Export the UI
+      export_ui(new_directory, title, citation, app_name)
+
+    }
+
     # Retrieve the app expressions
-    all_expressions <- build_input_expressions(model, labels, levels, placeholders)
+    all_expressions <- build_input_expressions(model, labels, levels, placeholders, export_app_to_folder, new_directory) # <- shiny inputs get added to export here
     shiny_inputs <- all_expressions$shiny_inputs
     server_input_data <- all_expressions$server_input_data
     server_validations <- all_expressions$server_validations
 
+    # Make a UI
+    ui <- get_UI(title, shiny_inputs, citation, app_name)
+
     # Set the formatting function to display as-is by default
     if(is.null(format))
       format <- function(x) x
-
-    # Make a UI
-    ui <- get_UI(title, shiny_inputs, citation, app_name)
 
     # Make the server
     server <- get_server(server_input_data, format, label, server_validations, label_header, value_header, prediction_engine_glm(model))
@@ -112,6 +129,7 @@ risk_calculator.coxph <-
     labels = NULL,
     levels = NULL,
     placeholders = NULL,
+    build_directory = NULL,
     ...
   ) {
 
@@ -229,7 +247,7 @@ get_server <-
 
 # Internal function to build the various ui/server expressions
 build_input_expressions <-
-  function(model, labels, levels, placeholders) {
+  function(model, labels, levels, placeholders, append_shiny_inputs, app_export_directory) {
 
     # Extract the model terms
     inputs <- attr(model$terms, "dataClasses")[-1]
@@ -252,6 +270,7 @@ build_input_expressions <-
     shiny_inputs <- list()
     server_expressions <- c()
     server_validations <- c()
+    shiny_input_export_strings <- c()
 
     # Iterate to create the shiny input objects, server expressions, etc.
     for(i in seq_along(inputs)) {
@@ -287,10 +306,22 @@ build_input_expressions <-
             placeholder = this_placeholder
           )
 
+        # Create the export string vector
+        this_shiny_input_export_string <-
+          c(
+            paste0("# ", this_label),
+            "shiny::textInput(",
+            paste0('  inputId = "', this_inputId, '",'),
+            paste0('  label = "', this_label, '",'),
+            paste0('  placeholder = "', this_placeholder, '"'),
+            "),",
+            ""
+          )
+
         # Set the server expression
         this_server_expression <- paste0(this_inputId, "=as.numeric(input$", this_inputId, ")")
 
-        # Otherwise, default to select inputs
+      # Otherwise, default to select inputs
       } else {
 
         # Create the choice vector
@@ -328,11 +359,24 @@ build_input_expressions <-
             choices = these_choices
           )
 
+        # Create the export string vector
+        this_shiny_input_export_string <-
+          c(
+            paste0("# ", this_label),
+            "shiny::selectInput(",
+            paste0('  inputId = "', this_inputId, '",'),
+            paste0('  label = "', this_label, '",'),
+            paste0('  choices = "', these_choices, '"'),
+            "),",
+            ""
+          )
+
       }
 
       # Add to the lists
       shiny_inputs[[i]] <- this_shiny_input
       server_expressions[i] <- this_server_expression
+      shiny_input_export_strings <- c(shiny_input_export_strings, this_shiny_input_export_string)
 
     }
 
@@ -341,6 +385,10 @@ build_input_expressions <-
 
     # Make the server validation expression for numeric inputs
     server_validations <- paste(server_validations, collapse = ";")
+
+    # Append the exported UI file with shiny inputs (if requested)
+    if(append_shiny_inputs)
+      export_shiny_inputs(app_export_directory, shiny_input_export_strings)
 
     # Return a list of objects
     list(
@@ -450,4 +498,180 @@ get_links <-
 
       style = "text-align: center;"
     )
+  }
+
+# Internal function to create the app directory and return the path
+create_app_directory <-
+  function(build_directory, app_name) {
+
+    # Set the directory name
+    if(is.null(app_name)) {
+
+      # Set default name
+      app_name <- "riskcalc_app"
+
+      # Give warning
+      warning("No app_name provided. Defaulting to 'riskcalc_app'.")
+
+    }
+
+    # Set the new app directory
+    new_directory <- paste0(build_directory, "/", app_name)
+
+    # Create the directory if it doesn't exist yet
+    if(file.exists(new_directory)) {
+
+      # Print message that it was created
+      message(paste0("App directory already exists: '", new_directory, "'. Will overwrite files."))
+
+    } else {
+
+      # Create the directory
+      dir.create(new_directory)
+
+      # Print message that it was created
+      message(paste0("App directory created: '", new_directory, "'"))
+
+    }
+
+    # Return the path for subsequent use
+    new_directory
+
+  }
+
+# Internal function to build the UI export file
+export_ui <-
+  function(new_directory, title, citation, app_name) {
+
+    ## Initialize export of UI function
+
+    # Retrieve function as a character string for each line
+    file_ui <- tempfile()
+    dump("get_UI", file = file_ui)
+    temp_ui <- readLines(file_ui)
+
+    ## Substitute the e-mail function
+
+    # Put the lines into a vector
+    file_email <- tempfile()
+    dump("js_email", file = file_email)
+    temp_email <- readLines(file_email)[-c(1,2,11)]
+
+    # Update the UI file
+    temp_ui <-
+      c(
+        temp_ui[1:10],
+        "      shiny::tags$script(",
+        paste0("   ", temp_email),
+        "      ),",
+        temp_ui[12:length(temp_ui)]
+      )
+
+    ## Substitute the title
+    temp_ui[23] <- paste0('      shiny::titlePanel("', title, '"),')
+
+    ## Substitute the citation
+
+    # Put the lines into a vector
+    file_citation <- tempfile()
+    dump("get_citation", file = file_citation)
+    temp_citation <- readLines(file_citation)[-c(1,2,7)]
+
+    # Update with input value
+    temp_citation[3] <- paste0('      htmltools::p("', citation, '")')
+    temp_citation[4] <- "    ),"
+
+    # Update the ui
+    temp_ui <-
+      c(
+        temp_ui[1:46],
+        paste0("      ", temp_citation),
+        temp_ui[48:length(temp_ui)]
+      )
+
+    ## Substitute the disclaimer
+
+    # Put the lines into a vector
+    file_disclaimer <- tempfile()
+    dump("get_disclaimer", file = file_disclaimer)
+    temp_disclaimer <- readLines(file_disclaimer)[-c(1,2,7)]
+    temp_disclaimer[4] <- "    ),"
+
+    # Update the UI file
+    temp_ui <-
+      c(
+        temp_ui[1:50],
+        paste0("      ", temp_disclaimer),
+        temp_ui[52:length(temp_ui)]
+      )
+
+    ## Substitute the links
+
+    # Get the lines
+    file_links <- tempfile()
+    dump("get_links", file = file_links)
+    temp_links <- readLines(file_links)[-c(1:8,22)]
+
+    # Replace the source link
+    temp_links[10] <- sub("source_link", paste0('"https://github.com/ClevelandClinicQHS/riskcalc-website/tree/main/', app_name, '"'), temp_links[10], fixed = TRUE)
+
+    # Update the UI
+    temp_ui <-
+      c(
+        temp_ui[1:54],
+        paste0("      ", temp_links),
+        temp_ui[56:length(temp_ui)]
+      )
+
+    ## Finishing touches
+
+    # Remove function
+    temp_ui <- temp_ui[-c(1:3, 71)]
+
+    # Remove leading spaces
+    temp_ui <- gsub("^\\s\\s\\s\\s", "", temp_ui)
+
+    # Add note to top
+    temp_ui <-
+      c(
+        "#---% Generated by riskcalc: feel free to edit or 'Run App' %---",
+        "",
+        temp_ui
+      )
+
+    # Write to file in app directory
+    writeLines(temp_ui, con = paste0(new_directory, "/ui.R"))
+
+  }
+
+# Internal function to append the exported UI file with the shiny inputs
+export_shiny_inputs <-
+  function(app_export_directory, shiny_input_export_strings) {
+
+    # Small edit at the end of the inputs
+    shiny_input_export_strings[length(shiny_input_export_strings) - 1] <- ")"
+
+    # Import the current state of the UI file
+    temp_ui <- readLines(con = paste0(app_export_directory, "/ui.R"))
+
+    # Create the vector of lines to add to the file
+    shiny_input_lines <-
+      c(
+        "    shiny::sidebarPanel(",
+        "",
+        paste0("      ", shiny_input_export_strings),
+        "    ),"
+      )
+
+    # Create the new vector
+    temp_ui <-
+      c(
+        temp_ui[1:27],
+        shiny_input_lines,
+        temp_ui[32:length(temp_ui)]
+      )
+
+    # Rewrite to file in app directory
+    writeLines(temp_ui, con = paste0(app_export_directory, "/ui.R"))
+
   }

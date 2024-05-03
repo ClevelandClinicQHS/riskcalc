@@ -20,6 +20,7 @@ risk_calculator(model, ...)
   labels = NULL,
   levels = NULL,
   placeholders = NULL,
+  build_directory = NULL,
   ...
 )
 
@@ -36,6 +37,7 @@ risk_calculator(model, ...)
   labels = NULL,
   levels = NULL,
   placeholders = NULL,
+  build_directory = NULL,
   ...
 )
 }
@@ -63,6 +65,8 @@ risk_calculator(model, ...)
 \item{levels}{Named list of named character vectors specifying labels for any factor levels}
 
 \item{placeholders}{Named character vector specifying range limits for numeric input variables (of the form \code{c(var="<min>-<max>")}). Invokes calls to \code{\link[shiny]{validate}} enforcing the limits.}
+
+\item{build_directory}{Location to export files into an application directory. The \code{app_name} will name the folder (if no name is provided, a generic folder name "riskcalc_app" is used).}
 
 \item{time}{Single time point to calculate survival probability (see \code{\link[survival]{summary.survfit}})}
 }
