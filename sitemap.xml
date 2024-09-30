@@ -1,33 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/404.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/index.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/reference/bladderCancer.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/reference/risk_calculator.html</loc>
-  </url>
-  <url>
-    <loc>https://clevelandclinicqhs.github.io/riskcalc/reference/riskcalc-package.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/404.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/LICENSE-text.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/LICENSE.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/authors.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/index.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/news/index.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/reference/bladderCancer.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/reference/index.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/reference/risk_calculator.html</loc></url>
+<url><loc>https://clevelandclinicqhs.github.io/riskcalc/reference/riskcalc-package.html</loc></url>
 </urlset>
+
