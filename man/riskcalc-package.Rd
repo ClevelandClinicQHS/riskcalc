@@ -4,7 +4,7 @@
 \name{riskcalc-package}
 \alias{riskcalc}
 \alias{riskcalc-package}
-\title{riskcalc: Build risk calculators for individualized prediction}
+\title{riskcalc: Build risk calculators for www.riskcalc.org}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 

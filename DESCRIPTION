@@ -1,5 +1,5 @@
 Package: riskcalc
-Title: Build risk calculators for individualized prediction
+Title: Build risk calculators for www.riskcalc.org
 Version: 0.0.0.9000
 Authors@R: c(
     person("Cleveland Clinic Quantitative Health Sciences", role = c("cph", "fnd")),
@@ -8,18 +8,18 @@ Description: Contains a toolkit for building Shiny-based risk calculators that c
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.2
+RoxygenNote: 7.3.2
 Suggests: 
+    DT,
+    htmltools,
+    shiny,
+    shinythemes,
+    survival,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
-    DT,
-    htmltools,
     lifecycle,
-    shiny,
-    shinythemes,
-    stats,
-    survival
+    stats
 URL: https://clevelandclinicqhs.github.io/riskcalc/
 Depends: 
     R (>= 2.10)

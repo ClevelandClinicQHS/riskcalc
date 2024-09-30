@@ -2,51 +2,58 @@
 % Please edit documentation in R/risk_calculator.R
 \name{risk_calculator}
 \alias{risk_calculator}
+\alias{risk_calculator.default}
 \alias{risk_calculator.glm}
 \alias{risk_calculator.coxph}
 \title{Build a risk calculator}
 \usage{
-risk_calculator(model, ...)
+risk_calculator(...)
+
+\method{risk_calculator}{default}(app_name = NULL, app_directory = NULL, ...)
 
 \method{risk_calculator}{glm}(
   model,
+  app_name = NULL,
+  app_directory = NULL,
   title = "",
   citation = "",
   label = "Predicted Value",
   label_header = "Result",
   value_header = "Value",
   format = NULL,
-  app_name = NULL,
   labels = NULL,
   levels = NULL,
   placeholders = NULL,
-  build_directory = NULL,
   ...
 )
 
 \method{risk_calculator}{coxph}(
   model,
   time,
+  app_name = NULL,
+  app_directory = NULL,
   title = "",
   citation = "",
   label = "Survival Probability",
   label_header = "Result",
   value_header = "Value",
   format = NULL,
-  app_name = NULL,
   labels = NULL,
   levels = NULL,
   placeholders = NULL,
-  build_directory = NULL,
   ...
 )
 }
 \arguments{
-\item{model}{A \code{\link[stats]{glm}} or \code{\link[survival]{coxph}} object whose \code{\link[stats]{formula}} only has non-negated factors}
+\item{...}{Generic arguments}
 
-\item{...}{Additional arguments}
+\item{app_name}{Application name (e.g., \code{"AppExample"} for www.riskcalc.org/AppExample. If no name is provided, a generic name "riskcalc_app" is used.}
 
-\item{title}{Title for risk calculator (see \code{\link[shiny]{titlePanel}})}
+\item{app_directory}{Location to export the application. If none provided, defaults to the working directory.}
+
+\item{model}{A \code{\link[stats]{glm}} or \code{\link[survival]{coxph}} object}
+
+\item{title}{Title for risk calculator}
 
 \item{citation}{Citation(s) and author information}
 
@@ -58,15 +65,11 @@ risk_calculator(model, ...)
 
 \item{format}{Function to format the predicted value for display}
 
-\item{app_name}{App shorthand, like \code{"AppExample"} (https://riskcalc.org/AppExample/)}
-
 \item{labels}{Named character vector specifying labels for any inputs}
 
 \item{levels}{Named list of named character vectors specifying labels for any factor levels}
 
 \item{placeholders}{Named character vector specifying range limits for numeric input variables (of the form \code{c(var="<min>-<max>")}). Invokes calls to \code{\link[shiny]{validate}} enforcing the limits.}
-
-\item{build_directory}{Location to export files into an application directory. The \code{app_name} will name the folder (if no name is provided, a generic folder name "riskcalc_app" is used).}
 
 \item{time}{Single time point to calculate survival probability (see \code{\link[survival]{summary.survfit}})}
 }
@@ -74,7 +77,7 @@ risk_calculator(model, ...)
 A \code{\link[shiny]{shiny}} application
 }
 \description{
-Construct a formatted \code{\link[shiny]{shiny}}-based risk calculator through different model inputs
+Create a (templated) risk calculator for www.riskcalc.org, optionally populating using an existing model object
 }
 \examples{
 # Make a data set

@@ -1,5 +1,5 @@
-test_that("I get a shiny app", {
-  expect_equal(class(risk_calculator(glm(1~1))), "shiny.appobj")
+test_that("Nothing returns", {
+  expect_equal(risk_calculator(), NULL)
 })
 
 test_that("I get an error for specifying multiple time points", {
