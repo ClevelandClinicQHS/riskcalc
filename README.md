@@ -14,9 +14,14 @@ status](https://www.r-pkg.org/badges/version/riskcalc)](https://CRAN.R-project.o
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-The goal of `riskcalc` is to provide a toolkit for building
+The goal of `riskcalc` is to accelerate building
 [`shiny`](https://www.rstudio.com/products/shiny/)-based risk
-calculators for <https://riskcalc.org/>.
+calculators for <https://riskcalc.org/>. It enables you to export an
+executable application template into a directory containing the
+pre-populated `R` scripts to run your app using the standard formatting.
+You can get a blank template to start from scratch, or provide model
+objects to the call to populate inputs/outputs for you. From there, you
+can make the necessary tweaks to complete your application.
 
 ## Installation
 
@@ -28,18 +33,60 @@ You can install the development version of `riskcalc` from
 devtools::install_github("ClevelandClinicQHS/riskcalc")
 ```
 
-# Example
+# Examples
 
-Let’s go through an example of how we can use the `risk_calculator`
-function to replicate the functionality of the existing [Bladder
-Cancer](https://riskcalc.org/bladderCancer/) risk calculator on the
-<https://riskcalc.org> website. Currently, it is setup to receive a
-[`glm`](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/glm)
-or
-[`coxph`](https://www.rdocumentation.org/packages/survival/versions/3.5-7/topics/coxph)
-object, so we’ll have to build a model first:
+Here we’ll go through a couple examples. First, load the package.
 
 ``` r
+# Load the package
+library(riskcalc) 
+```
+
+## Blank app
+
+The `risk_calulator` function by default will export a blank application
+template to your working directory with a default name. You can
+optionally specify the location to place the app, as well as its name.
+
+``` r
+risk_calculator(
+  app_directory = "/PATH_TO_FOLDER",
+  app_name = "BlankRiskCalculator"
+)
+```
+
+Execution of the above code will create a new directory in
+`/PATH_TO_FOLDER/BlankRiskCalculator` with the following contents:
+
+- `global.R`: Objects to load/execute when the app is launched
+- `ui.R`: Default interface to the application
+- `server.R`: App server with dormant functionality (though the code
+  templates are present)
+
+In RStudio, we can then open (one of) these files and click `Run App`,
+as it is a functioning `shiny` application. It looks like this:
+
+![](man/figures/app_default.png)
+
+It provides the default app themes and information panels, as well as
+creates the necessary source code link for when the `R` code gets pushed
+to the [website’s GitHub
+repository](https://github.com/ClevelandClinicQHS/riskcalc-website). The
+`ui.R` and `server.R` files have various placeholders for you to go in
+and add titles, variable inputs, etc., as needed.
+
+## Model populated app
+
+You can also provide a `glm` or `coxph` object to the `risk_calculator`
+function call to get the scripts for a functioning risk calculator with
+all of the inputs and prediction calculation setup for you, along with
+other arguments for various formatting preferences. We’ll go through an
+example of a creating an application that mimics the appearance and
+functionality of the [bladder cancer
+app](https://riskcalc.org/bladderCancer/):
+
+``` r
+
 # Load packages
 library(riskcalc) 
 library(survival)
@@ -50,41 +97,22 @@ mod <-
     formula = Surv(Time, Recurrence) ~ .,
     data = bladderCancer
   )
-```
 
-We can just supply the model and a desired prediction time point (since
-it’s a survival model) to the `risk_calculator` function, and a
-[`shiny`]() app will be constructed that allows for user input for each
-predictor in which an individual prediction can be obtained.
-
-``` r
-mod |> risk_calculator(time = 5)
-```
-
-![](man/figures/app_default.png)
-
-Now all that is left is formatting to make this application look like
-the [real one](https://riskcalc.org/bladderCancer/). We can use the
-plethora of additional arguments to adjust accordingly:
-
-``` r
-mod |> 
+mod |>
+  
+  # Build the risk calculator
   risk_calculator(
-    time = 5,
+    time = 13, # Produce 13-year survival probabilities
+    app_directory = "/Users/alexzajichek", #"/PATH_TO_FOLDER",
+    app_name = "bladderCancer",
     title = "Predicting 5-Year Recurrence-Free Survival after Radical Cystectomy for Bladder Cancer",
     citation = 
-      htmltools::p(
-        "[1] International Bladder Cancer Nomogram Consortium, Bochner BH, Kattan MW, Vora KC.",
-        htmltools::a(
-          "Postoperative nomogram predicting risk of recurrence after radical cystectomy for bladder cancer",
-          href = "http://jco.ascopubs.org/content/24/24/3967.full.pdf"
-        ),
-        ". J Clin Oncol. 2006 Aug 20;24(24):3967-72. Epub 2006 Jul 24. Erratum in: J Clin Oncol. 2007 Apr 10;25(11):1457"
-      ),
+      HTML("<p>[1] International Bladder Cancer Nomogram Consortium, Bochner BH, Kattan MW, Vora KC.
+      <a href = 'http://jco.ascopubs.org/content/24/24/3967.full.pdf'> Postoperative nomogram predicting risk of recurrence after radical cystectomy for bladder cancer</a>
+      . J Clin Oncol. 2006 Aug 20;24(24):3967-72. Epub 2006 Jul 24. Erratum in: J Clin Oncol. 2007 Apr 10;25(11):1457</p>"),
     label = "Percentage of 5-Year Recurrence-Free Survival",
     value_header = "Probability",
-    format = function(x) paste0(round(100*x), "%"),
-    app_name = "bladderCancer",
+    format = function(x) paste0(round(100 * x), "%"),
     labels =
       c(
         Age = "Age (Years)",
@@ -106,26 +134,33 @@ mod |>
   )
 ```
 
+This creates a new directory in `/PATH_TO_FOLDER/bladderCancer` with the
+following contents:
+
+- `global.R`: Objects to load/execute when the app is launched,
+  including loading the `coxph` model object, the function to generate
+  the prediction, the time point of interest, and the function for
+  formatting the final result in the table.
+- `ui.R`: Interface to the application including the title, predictor
+  inputs (with formatted labels), citation information, etc.
+- `server.R`: Application server that validates inputs, creates the
+  input data frame from the current selections, and produces the result
+  output table.
+- `model.RData`: The `coxph` object that was passed to the function
+  call, used for generating predictions.
+
+In RStudio, we can then open (one of) these `.R` files and click
+`Run App`, as it is a functioning `shiny` application. It looks like
+this after the inputs are entered and the “Run Calculator” button is
+pressed:
+
 ![](man/figures/app_formatted.png)
 
 Some notes on select arguments:
 
-- `citation`: This is where applications typically display the source
-  publication for the risk calculator. It could just be a simple
-  character string, but in this case, the
-  [`htmltools`](https://cran.r-project.org/web/packages/htmltools/index.html)
-  package is used to add text that contains a hyperlink to the
-  publication.
-- `format`: This is a transformation that can be applied to the default
-  result value for preferred display. For a `coxph` object, by default,
-  the *survival* probability (which is what we want) is computed at the
-  specified `time` point (in this case, 5-years), but we added some
-  rounding and tacked on a `%` symbol. For a `glm` object, the default
-  output is the predicted value where `type = "response"` (see
-  `?predict.glm`)
 - `app_name`: We use short-hand names for applications in their URL at
   [riskcalc.org](https://riskcalc.org/) (e.g.,
-  <https://riskcalc.org/bladderCancer/>). Recently, the source code for
+  <https://riskcalc.org/bladderCancer/>). The source code for
   applications were
   [added](https://github.com/ClevelandClinicQHS/riskcalc-website) to our
   [QHS GitHub](https://github.com/clevelandclinicqhs) page. Part of that
@@ -133,6 +168,17 @@ Some notes on select arguments:
   themselves. So when this argument is used, it will automatically add
   the source code link to the assumed spot that it would be on GitHub
   (see bottom-right of screenshot above).
+- `citation`: This is where applications typically display the source
+  publication for the risk calculator. It could just be a simple
+  character string, but in this case, HTML code was supplied to add text
+  that contains a hyperlink to the publication.
+- `format`: This is a transformation that can be applied to the default
+  result value for preferred display. For a `coxph` object, by default,
+  the *survival* probability (which is what we want) is computed at the
+  specified `time` point (in this case, 5-years), but we added some
+  rounding and tacked on a `%` symbol. For a `glm` object, the default
+  output is the predicted value where `type = "response"` (see
+  `?predict.glm`)
 - `placeholders`: Adds restrictions for what values can be entered into
   the numeric predictor inputs. It adds the background text so the user
   can see the range, but it also enforces this restriction with the

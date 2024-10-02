@@ -251,7 +251,7 @@ build_io_expressions <-
             "selectInput(",
             paste0('  inputId = "', this_inputId, '",'),
             paste0('  label = "', this_label, '",'),
-            paste0('  choices = c(', paste(paste0('"', these_choices, '"'), collapse = ","), ')'),
+            paste0('  choices = c(', paste(paste0(names(these_choices), ' = "', these_choices, '"'), collapse = ","), ')'),
             "),",
             ""
           )
@@ -330,7 +330,20 @@ export_ui <-
     temp_ui[26] <- paste0('    titlePanel("', title, '"),')
 
     ## Substitute the citation
-    temp_ui[51] <- paste0('          p("', citation, '")')
+
+    # Format based on input
+    if(is.null(citation)) {
+      citation <- "p()"
+    } else if("html" %in% class(citation) | "shiny.tag" %in% class(citation)) {
+      citation <- paste0("HTML(\"", as.character(citation), "\")")
+    } else if(is.character(citation)) {
+      citation <- paste0('p("', citation, '")')
+    } else {
+      stop("Citation should be a character string, an HTML() object, or a shiny tag.")
+    }
+
+    # Add to line
+    temp_ui[51] <- paste0('          ', citation)
 
     ## Substitute the links
     if(!is.null(app_name))
