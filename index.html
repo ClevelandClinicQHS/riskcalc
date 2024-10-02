@@ -54,7 +54,7 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of <code>riskcalc</code> is to provide a toolkit for building <a href="https://www.rstudio.com/products/shiny/" class="external-link"><code>shiny</code></a>-based risk calculators for <a href="https://riskcalc.org/" class="external-link uri">https://riskcalc.org/</a>.</p>
+<p>The goal of <code>riskcalc</code> is to accelerate building <a href="https://www.rstudio.com/products/shiny/" class="external-link"><code>shiny</code></a>-based risk calculators for <a href="https://riskcalc.org/" class="external-link uri">https://riskcalc.org/</a>. It enables you to export an executable application template into a directory containing the pre-populated <code>R</code> scripts to run your app using the standard formatting. You can get a blank template to start from scratch, or provide model objects to the call to populate inputs/outputs for you. From there, you can make the necessary tweaks to complete your application.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -65,11 +65,41 @@
 </div>
 </div>
 <div class="section level1">
-<h1 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h1 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
 </h1>
-<p>Let’s go through an example of how we can use the <code>risk_calculator</code> function to replicate the functionality of the existing <a href="https://riskcalc.org/bladderCancer/" class="external-link">Bladder Cancer</a> risk calculator on the <a href="https://riskcalc.org" class="external-link uri">https://riskcalc.org</a> website. Currently, it is setup to receive a <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/glm" class="external-link"><code>glm</code></a> or <a href="https://www.rdocumentation.org/packages/survival/versions/3.5-7/topics/coxph" class="external-link"><code>coxph</code></a> object, so we’ll have to build a model first:</p>
+<p>Here we’ll go through a couple examples. First, load the package.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load packages</span></span>
+<code class="sourceCode R"><span><span class="co"># Load the package</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://clevelandclinicqhs.github.io/riskcalc/">riskcalc</a></span><span class="op">)</span> </span></code></pre></div>
+<div class="section level2">
+<h2 id="blank-app">Blank app<a class="anchor" aria-label="anchor" href="#blank-app"></a>
+</h2>
+<p>The <code>risk_calulator</code> function by default will export a blank application template to your working directory with a default name. You can optionally specify the location to place the app, as well as its name.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/risk_calculator.html">risk_calculator</a></span><span class="op">(</span></span>
+<span>  app_directory <span class="op">=</span> <span class="st">"/PATH_TO_FOLDER"</span>,</span>
+<span>  app_name <span class="op">=</span> <span class="st">"BlankRiskCalculator"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Execution of the above code will create a new directory in <code>/PATH_TO_FOLDER/BlankRiskCalculator</code> with the following contents:</p>
+<ul>
+<li>
+<code>global.R</code>: Objects to load/execute when the app is launched</li>
+<li>
+<code>ui.R</code>: Default interface to the application</li>
+<li>
+<code>server.R</code>: App server with dormant functionality (though the code templates are present)</li>
+</ul>
+<p>In RStudio, we can then open (one of) these files and click <code>Run App</code>, as it is a functioning <code>shiny</code> application. It looks like this:</p>
+<p><img src="reference/figures/app_default.png"></p>
+<p>It provides the default app themes and information panels, as well as creates the necessary source code link for when the <code>R</code> code gets pushed to the <a href="https://github.com/ClevelandClinicQHS/riskcalc-website" class="external-link">website’s GitHub repository</a>. The <code>ui.R</code> and <code>server.R</code> files have various placeholders for you to go in and add titles, variable inputs, etc., as needed.</p>
+</div>
+<div class="section level2">
+<h2 id="model-populated-app">Model populated app<a class="anchor" aria-label="anchor" href="#model-populated-app"></a>
+</h2>
+<p>You can also provide a <code>glm</code> or <code>coxph</code> object to the <code>risk_calculator</code> function call to get the scripts for a functioning risk calculator with all of the inputs and prediction calculation setup for you, along with other arguments for various formatting preferences. We’ll go through an example of a creating an application that mimics the appearance and functionality of the <a href="https://riskcalc.org/bladderCancer/" class="external-link">bladder cancer app</a>:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Load packages</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://clevelandclinicqhs.github.io/riskcalc/">riskcalc</a></span><span class="op">)</span> </span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/therneau/survival" class="external-link">survival</a></span><span class="op">)</span></span>
 <span></span>
@@ -78,30 +108,23 @@
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/survival/man/coxph.html" class="external-link">coxph</a></span><span class="op">(</span></span>
 <span>    formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/survival/man/Surv.html" class="external-link">Surv</a></span><span class="op">(</span><span class="va">Time</span>, <span class="va">Recurrence</span><span class="op">)</span> <span class="op">~</span> <span class="va">.</span>,</span>
 <span>    data <span class="op">=</span> <span class="va">bladderCancer</span></span>
-<span>  <span class="op">)</span></span></code></pre></div>
-<p>We can just supply the model and a desired prediction time point (since it’s a survival model) to the <code>risk_calculator</code> function, and a <a href=""><code>shiny</code></a> app will be constructed that allows for user input for each predictor in which an individual prediction can be obtained.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mod</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/risk_calculator.html">risk_calculator</a></span><span class="op">(</span>time <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="reference/figures/app_default.png"></p>
-<p>Now all that is left is formatting to make this application look like the <a href="https://riskcalc.org/bladderCancer/" class="external-link">real one</a>. We can use the plethora of additional arguments to adjust accordingly:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mod</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="va">mod</span> <span class="op">|&gt;</span></span>
+<span>  </span>
+<span>  <span class="co"># Build the risk calculator</span></span>
 <span>  <span class="fu"><a href="reference/risk_calculator.html">risk_calculator</a></span><span class="op">(</span></span>
-<span>    time <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    time <span class="op">=</span> <span class="fl">13</span>, <span class="co"># Produce 13-year survival probabilities</span></span>
+<span>    app_directory <span class="op">=</span> <span class="st">"/Users/alexzajichek"</span>, <span class="co">#"/PATH_TO_FOLDER",</span></span>
+<span>    app_name <span class="op">=</span> <span class="st">"bladderCancer"</span>,</span>
 <span>    title <span class="op">=</span> <span class="st">"Predicting 5-Year Recurrence-Free Survival after Radical Cystectomy for Bladder Cancer"</span>,</span>
 <span>    citation <span class="op">=</span> </span>
-<span>      <span class="fu">htmltools</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">p</a></span><span class="op">(</span></span>
-<span>        <span class="st">"[1] International Bladder Cancer Nomogram Consortium, Bochner BH, Kattan MW, Vora KC."</span>,</span>
-<span>        <span class="fu">htmltools</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/htmltools/reference/builder.html" class="external-link">a</a></span><span class="op">(</span></span>
-<span>          <span class="st">"Postoperative nomogram predicting risk of recurrence after radical cystectomy for bladder cancer"</span>,</span>
-<span>          href <span class="op">=</span> <span class="st">"http://jco.ascopubs.org/content/24/24/3967.full.pdf"</span></span>
-<span>        <span class="op">)</span>,</span>
-<span>        <span class="st">". J Clin Oncol. 2006 Aug 20;24(24):3967-72. Epub 2006 Jul 24. Erratum in: J Clin Oncol. 2007 Apr 10;25(11):1457"</span></span>
-<span>      <span class="op">)</span>,</span>
+<span>      <span class="fu">HTML</span><span class="op">(</span><span class="st">"&lt;p&gt;[1] International Bladder Cancer Nomogram Consortium, Bochner BH, Kattan MW, Vora KC.</span></span>
+<span><span class="st">      &lt;a href = 'http://jco.ascopubs.org/content/24/24/3967.full.pdf'&gt; Postoperative nomogram predicting risk of recurrence after radical cystectomy for bladder cancer&lt;/a&gt;</span></span>
+<span><span class="st">      . J Clin Oncol. 2006 Aug 20;24(24):3967-72. Epub 2006 Jul 24. Erratum in: J Clin Oncol. 2007 Apr 10;25(11):1457&lt;/p&gt;"</span><span class="op">)</span>,</span>
 <span>    label <span class="op">=</span> <span class="st">"Percentage of 5-Year Recurrence-Free Survival"</span>,</span>
 <span>    value_header <span class="op">=</span> <span class="st">"Probability"</span>,</span>
-<span>    format <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span><span class="op">*</span><span class="va">x</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,</span>
-<span>    app_name <span class="op">=</span> <span class="st">"bladderCancer"</span>,</span>
+<span>    format <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">x</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,</span>
 <span>    labels <span class="op">=</span></span>
 <span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>        Age <span class="op">=</span> <span class="st">"Age (Years)"</span>,</span>
@@ -121,18 +144,31 @@
 <span>      <span class="op">)</span>,</span>
 <span>    placeholders <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>Age <span class="op">=</span> <span class="st">"20-100"</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
+<p>This creates a new directory in <code>/PATH_TO_FOLDER/bladderCancer</code> with the following contents:</p>
+<ul>
+<li>
+<code>global.R</code>: Objects to load/execute when the app is launched, including loading the <code>coxph</code> model object, the function to generate the prediction, the time point of interest, and the function for formatting the final result in the table.</li>
+<li>
+<code>ui.R</code>: Interface to the application including the title, predictor inputs (with formatted labels), citation information, etc.</li>
+<li>
+<code>server.R</code>: Application server that validates inputs, creates the input data frame from the current selections, and produces the result output table.</li>
+<li>
+<code>model.RData</code>: The <code>coxph</code> object that was passed to the function call, used for generating predictions.</li>
+</ul>
+<p>In RStudio, we can then open (one of) these <code>.R</code> files and click <code>Run App</code>, as it is a functioning <code>shiny</code> application. It looks like this after the inputs are entered and the “Run Calculator” button is pressed:</p>
 <p><img src="reference/figures/app_formatted.png"></p>
 <p>Some notes on select arguments:</p>
 <ul>
 <li>
-<code>citation</code>: This is where applications typically display the source publication for the risk calculator. It could just be a simple character string, but in this case, the <a href="https://cran.r-project.org/web/packages/htmltools/index.html" class="external-link"><code>htmltools</code></a> package is used to add text that contains a hyperlink to the publication.</li>
+<code>app_name</code>: We use short-hand names for applications in their URL at <a href="https://riskcalc.org/" class="external-link">riskcalc.org</a> (e.g., <a href="https://riskcalc.org/bladderCancer/" class="external-link uri">https://riskcalc.org/bladderCancer/</a>). The source code for applications were <a href="https://github.com/ClevelandClinicQHS/riskcalc-website" class="external-link">added</a> to our <a href="https://github.com/clevelandclinicqhs" class="external-link">QHS GitHub</a> page. Part of that was to add source code links back to GitHub within the apps themselves. So when this argument is used, it will automatically add the source code link to the assumed spot that it would be on GitHub (see bottom-right of screenshot above).</li>
+<li>
+<code>citation</code>: This is where applications typically display the source publication for the risk calculator. It could just be a simple character string, but in this case, HTML code was supplied to add text that contains a hyperlink to the publication.</li>
 <li>
 <code>format</code>: This is a transformation that can be applied to the default result value for preferred display. For a <code>coxph</code> object, by default, the <em>survival</em> probability (which is what we want) is computed at the specified <code>time</code> point (in this case, 5-years), but we added some rounding and tacked on a <code>%</code> symbol. For a <code>glm</code> object, the default output is the predicted value where <code>type = "response"</code> (see <code><a href="https://rdrr.io/r/stats/predict.glm.html" class="external-link">?predict.glm</a></code>)</li>
 <li>
-<code>app_name</code>: We use short-hand names for applications in their URL at <a href="https://riskcalc.org/" class="external-link">riskcalc.org</a> (e.g., <a href="https://riskcalc.org/bladderCancer/" class="external-link uri">https://riskcalc.org/bladderCancer/</a>). Recently, the source code for applications were <a href="https://github.com/ClevelandClinicQHS/riskcalc-website" class="external-link">added</a> to our <a href="https://github.com/clevelandclinicqhs" class="external-link">QHS GitHub</a> page. Part of that was to add source code links back to GitHub within the apps themselves. So when this argument is used, it will automatically add the source code link to the assumed spot that it would be on GitHub (see bottom-right of screenshot above).</li>
-<li>
 <code>placeholders</code>: Adds restrictions for what values can be entered into the numeric predictor inputs. It adds the background text so the user can see the range, but it also enforces this restriction with the <a href="https://shiny.posit.co/r/reference/shiny/0.11/validate.html" class="external-link"><code>shiny::validate</code></a> function.</li>
 </ul>
+</div>
 </div>
 
   </main><aside class="col-md-3"><div class="license">
