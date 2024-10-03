@@ -102,12 +102,12 @@ mod |>
   
   # Build the risk calculator
   risk_calculator(
-    time = 13, # Produce 13-year survival probabilities
-    app_directory = "/Users/alexzajichek", #"/PATH_TO_FOLDER",
+    time = 5, # Produce 5-year survival probabilities
+    app_directory = "/PATH_TO_FOLDER",
     app_name = "bladderCancer",
     title = "Predicting 5-Year Recurrence-Free Survival after Radical Cystectomy for Bladder Cancer",
     citation = 
-      HTML("<p>[1] International Bladder Cancer Nomogram Consortium, Bochner BH, Kattan MW, Vora KC.
+      htmltools::HTML("<p>[1] International Bladder Cancer Nomogram Consortium, Bochner BH, Kattan MW, Vora KC.
       <a href = 'http://jco.ascopubs.org/content/24/24/3967.full.pdf'> Postoperative nomogram predicting risk of recurrence after radical cystectomy for bladder cancer</a>
       . J Clin Oncol. 2006 Aug 20;24(24):3967-72. Epub 2006 Jul 24. Erratum in: J Clin Oncol. 2007 Apr 10;25(11):1457</p>"),
     label = "Percentage of 5-Year Recurrence-Free Survival",
