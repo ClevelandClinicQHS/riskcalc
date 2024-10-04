@@ -72,14 +72,16 @@ risk_calculator.glm <-
 #' @param time Single time point to calculate survival probability (see \code{\link[survival]{summary.survfit}})
 #' @export
 #' @examples
+#' library(survival)
+#'
 #' # Make a data set
-#' dat <- survival::gbsg
+#' dat <- gbsg
 #' dat$meno <- factor(dat$meno)
 #'
 #' # Build a model
 #' mod <-
-#'   survival::coxph(
-#'     formula = survival::Surv(rfstime, status) ~ age + meno,
+#'   coxph(
+#'     formula = Surv(rfstime, status) ~ age + meno,
 #'     data = dat
 #'   )
 #'
@@ -87,23 +89,25 @@ risk_calculator.glm <-
 #' time <- median(dat$rfstime) # 1084
 #'
 #' # Create the risk calculator
-#' if(interactive()) {
-#'   risk_calculator(
-#'     model = mod,
-#'     time = time,
-#'     title = "Risk of Death or Recurrence in Breast Cancer",
-#'     citation =
-#'       paste0(
-#'         "Patrick Royston and Douglas Altman, External validation of a Cox prognostic",
-#'         "model: principles and methods. BMC Medical Research Methodology 2013, 13:33"
-#'       ),
-#'     label_header = "Probability Of Death or Recurrence",
-#'     label = paste0("At time = ", time),
-#'     labels = c(age = "Age (years)", meno = "Menopausal Status"),
-#'     levels = list(meno = c(`0` = "Premenopausal", `1` = "Postmenopausal")),
-#'     placeholders = c(age = "21-80"),
-#'     format = function(x) paste0(round(100 * (1 - x), 2), "%")
-#'   )
+#' \dontrun{
+#' risk_calculator(
+#'   model = mod,
+#'   time = time,
+#'   app_name = "BreastCancer",
+#'   app_directory = getwd(),
+#'   title = "Risk of Death or Recurrence in Breast Cancer",
+#'   citation =
+#'     paste0(
+#'      "Patrick Royston and Douglas Altman, External validation of a Cox prognostic",
+#'      "model: principles and methods. BMC Medical Research Methodology 2013, 13:33"
+#'     ),
+#'   label_header = "`Probability Of Death or Recurrence`",
+#'   label = paste0("At time = ", time),
+#'   labels = c(age = "Age (years)", meno = "Menopausal Status"),
+#'   levels = list(meno = c(`0` = "Premenopausal", `1` = "Postmenopausal")),
+#'   placeholders = c(age = "21-80"),
+#'   format = function(x) paste0(round(100 * (1 - x), 2), "%")
+#' )
 #' }
 risk_calculator.coxph <-
   function(
